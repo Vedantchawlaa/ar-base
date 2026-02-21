@@ -21,7 +21,9 @@ interface ContentPanelProps {
   onUpdateOpacity: (opacity: number) => void;
   onUpdateTexture: (texture: ProductConfig['texture']) => void;
   onToggleMeasurements: () => void;
+  onEnterAR: () => void;
 }
+
 
 export const ContentPanel = ({
   activeTab,
@@ -36,6 +38,7 @@ export const ContentPanel = ({
   onUpdateOpacity,
   onUpdateTexture,
   onToggleMeasurements,
+  onEnterAR,
 }: ContentPanelProps) => {
   const currentTab = TABS.find(t => t.id === activeTab);
 
@@ -65,6 +68,7 @@ export const ContentPanel = ({
           <ProductsTab
             selectedProduct={config.selectedProduct}
             onSelectProduct={onUpdateProduct}
+            onEnterAR={onEnterAR}
           />
         )}
 
@@ -112,3 +116,4 @@ export const ContentPanel = ({
     </div>
   );
 };
+

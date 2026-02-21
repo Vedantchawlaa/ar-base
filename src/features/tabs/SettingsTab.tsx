@@ -1,4 +1,4 @@
-import { MdPhotoCamera, MdShare, MdDownload } from 'react-icons/md';
+import { MdPhotoCamera, MdShare, MdDownload, MdSettings, MdHistory, MdTune } from 'react-icons/md';
 
 interface SettingsTabProps {
   showMeasurements: boolean;
@@ -7,59 +7,87 @@ interface SettingsTabProps {
 
 export const SettingsTab = ({ showMeasurements, onToggleMeasurements }: SettingsTabProps) => {
   return (
-    <div className="flex flex-col gap-5">
-      <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-        Display Settings
-      </h3>
+    <div className="flex flex-col gap-10">
+      {/* Visual Settings */}
+      <div>
+        <div className="flex items-center gap-2 mb-6">
+          <div className="w-1 h-4 bg-[#667eea]" />
+          <h3 className="text-xs font-bold text-gray-900 uppercase tracking-[0.2em]">
+            Experience Settings
+          </h3>
+        </div>
 
-      {/* Toggle Settings */}
-      <div className="space-y-4">
-        <ToggleItem
-          label="Show Measurements"
-          description="Display dimensions on 3D model"
-          checked={showMeasurements}
-          onChange={onToggleMeasurements}
-        />
-        <ToggleItem
-          label="High Quality"
-          description="Better rendering quality"
-          checked={true}
-          onChange={() => {}}
-        />
-        <ToggleItem
-          label="Auto-rotate"
-          description="Automatically rotate model"
-          checked={false}
-          onChange={() => {}}
-        />
+        <div className="space-y-2 bg-gray-50 border border-gray-100 p-2">
+          <ToggleItem
+            label="Show Measurements"
+            description="Display real-world dimensions on the model"
+            checked={showMeasurements}
+            onChange={onToggleMeasurements}
+            icon={<MdTune className="text-[#667eea]" />}
+          />
+          <ToggleItem
+            label="High Precision"
+            description="Use ultra-sharp textures and shadows"
+            checked={true}
+            onChange={() => {}}
+            icon={<MdSettings className="text-[#667eea]" />}
+          />
+          <ToggleItem
+            label="Auto-Rotation"
+            description="Continuously rotate the preview model"
+            checked={false}
+            onChange={() => {}}
+            icon={<MdHistory className="text-[#667eea]" />}
+          />
+        </div>
       </div>
 
-      <hr className="border-gray-200 my-2" />
-
       {/* Export Section */}
-      <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-        Export
-      </h3>
+      <div>
+         <div className="flex items-center gap-2 mb-6">
+          <div className="w-1 h-4 bg-[#667eea]" />
+          <h3 className="text-xs font-bold text-gray-900 uppercase tracking-[0.2em]">
+            Export & Actions
+          </h3>
+        </div>
 
-      <div className="space-y-2">
-        <button className="w-full py-3 px-5 bg-white text-[#667eea] border-2 border-[#667eea]
-                         rounded-none font-semibold text-sm flex items-center justify-center gap-2
-                         hover:bg-indigo-50 transition-all duration-200">
-          <MdPhotoCamera className="text-lg" />
-          Save Screenshot
-        </button>
-        <button className="w-full py-3 px-5 bg-white text-[#667eea] border-2 border-[#667eea]
-                         rounded-none font-semibold text-sm flex items-center justify-center gap-2
-                         hover:bg-indigo-50 transition-all duration-200">
-          <MdShare className="text-lg" />
-          Share Design
-        </button>
-        <button className="w-full py-3 px-5 bg-white text-[#667eea] border-2 border-[#667eea]
-                         rounded-none font-semibold text-sm flex items-center justify-center gap-2
-                         hover:bg-indigo-50 transition-all duration-200">
-          <MdDownload className="text-lg" />
-          Download Specs
-        </button>
+        <div className="grid grid-cols-1 gap-3">
+          <button className="group relative w-full py-4 px-6 bg-white border-2 border-gray-100
+                           text-sm font-bold uppercase tracking-widest flex items-center justify-between
+                           hover:border-[#667eea] hover:shadow-xl transition-all duration-300 overflow-hidden">
+            <div className="flex items-center gap-3">
+              <MdPhotoCamera className="text-xl text-gray-400 group-hover:text-[#667eea]" />
+              <span className="text-gray-600 group-hover:text-gray-900">Render Snapshot</span>
+            </div>
+            <div className="w-1.5 h-1.5 bg-indigo-200 group-hover:bg-[#667eea] transition-colors" />
+          </button>
+
+          <button className="group relative w-full py-4 px-6 bg-white border-2 border-gray-100
+                           text-sm font-bold uppercase tracking-widest flex items-center justify-between
+                           hover:border-[#667eea] hover:shadow-xl transition-all duration-300 overflow-hidden">
+            <div className="flex items-center gap-3">
+              <MdShare className="text-xl text-gray-400 group-hover:text-[#667eea]" />
+              <span className="text-gray-600 group-hover:text-gray-900">Share Config</span>
+            </div>
+            <div className="w-1.5 h-1.5 bg-indigo-200 group-hover:bg-[#667eea] transition-colors" />
+          </button>
+
+          <button className="group relative w-full py-4 px-6 bg-gray-900 border-2 border-gray-900
+                           text-white text-sm font-bold uppercase tracking-widest flex items-center justify-between
+                           hover:bg-gray-800 transition-all duration-300">
+            <div className="flex items-center gap-3">
+              <MdDownload className="text-xl text-[#667eea]" />
+              <span>Download Specs (PDF)</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Footer Info */}
+      <div className="mt-4 p-4 border-t border-gray-100 text-center">
+        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+          Version 2.4.0-build.82
+        </p>
       </div>
     </div>
   );
@@ -71,27 +99,35 @@ interface ToggleItemProps {
   description: string;
   checked: boolean;
   onChange: () => void;
+  icon: React.ReactNode;
 }
 
-const ToggleItem = ({ label, description, checked, onChange }: ToggleItemProps) => (
-  <div className="flex justify-between items-center py-4 border-b border-gray-200 last:border-0">
-    <div className="flex-1">
-      <label className="block text-sm font-semibold text-gray-900 mb-1">
-        {label}
-      </label>
-      <p className="text-xs text-gray-600">{description}</p>
+const ToggleItem = ({ label, description, checked, onChange, icon }: ToggleItemProps) => (
+  <div className="flex justify-between items-center p-4 bg-white border border-transparent hover:border-indigo-100 transition-all duration-300">
+    <div className="flex items-center gap-4">
+      <div className="w-8 h-8 flex items-center justify-center bg-indigo-50/50">
+        {icon}
+      </div>
+      <div className="flex flex-col">
+        <label className="text-[11px] font-black text-gray-900 uppercase tracking-widest leading-none mb-1">
+          {label}
+        </label>
+        <p className="text-[10px] text-gray-400 font-medium">{description}</p>
+      </div>
     </div>
-    <label className="relative inline-block w-12 h-7 cursor-pointer">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="sr-only peer"
-      />
-      <div className="w-full h-full bg-gray-300 rounded-none peer-checked:bg-[#667eea] 
-                    transition-colors duration-300"></div>
-      <div className="absolute top-1 left-1 w-5 h-5 bg-white rounded-none
-                    peer-checked:translate-x-5 transition-transform duration-300"></div>
-    </label>
+    
+    <button 
+      onClick={onChange}
+      className={`
+        relative w-12 h-6 transition-all duration-500 ease-in-out
+        ${checked ? 'bg-[#667eea]' : 'bg-gray-200'}
+      `}
+    >
+      <div className={`
+        absolute top-1 left-1 w-4 h-4 bg-white shadow-md transition-all duration-500
+        ${checked ? 'translate-x-6' : 'translate-x-0'}
+      `} />
+    </button>
   </div>
 );
+

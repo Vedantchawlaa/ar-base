@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
 import { XR, createXRStore, IfInSessionMode } from '@react-three/xr';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { ARExperience, type ARControlsState } from '../../components/ARExperience';
 import { ARInstructions } from '../../components/ARInstructions';
 import { ARControls } from '../../components/ARControls';
@@ -18,12 +18,16 @@ const store = createXRStore({
   domOverlay: true,
 });
 
-export const Viewer = ({ config }: ViewerProps) => {
+export const Viewer = forwardRef<{ enterAR: () => void }, ViewerProps>(({ config }, ref) => {
   const { selectedProduct } = config;
   const [isARSupported, setIsARSupported] = useState(true);
   const [showARInstructions, setShowARInstructions] = useState(false);
   const [isInAR, setIsInAR] = useState(false);
   const [arControls, setARControls] = useState<ARControlsState | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    enterAR: handleEnterAR
+  }));
 
   // Check AR support on mount
   useEffect(() => {
@@ -67,22 +71,27 @@ export const Viewer = ({ config }: ViewerProps) => {
   }, []);
 
   return (
-    <div className="flex-1 relative bg-gray-100">
+    <div className="flex-1 relative bg-gray-50">
       <Canvas 
         camera={{ position: [0, 0, 6], fov: 45 }}
         shadows
+        gl={{ 
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance"
+        }}
       >
         <XR store={store}>
-          <color attach="background" args={['#f5f5f5']} />
-          <ambientLight intensity={0.4} />
+          <color attach="background" args={['#fafafa']} />
+          <ambientLight intensity={0.6} />
           <directionalLight 
-            position={[5, 5, 5]} 
-            intensity={1} 
+            position={[5, 10, 5]} 
+            intensity={1.2} 
             castShadow
             shadow-mapSize={[2048, 2048]}
           />
-          <spotLight position={[-5, 5, 2]} intensity={0.3} angle={0.3} penumbra={1} />
-          <Environment preset="city" />
+          <spotLight position={[-5, 5, 2]} intensity={0.5} angle={0.3} penumbra={1} />
+          <Environment preset="apartment" />
         
         
         <ARExperience config={config} onARControlsChange={handleARControlsChange} />
@@ -90,10 +99,10 @@ export const Viewer = ({ config }: ViewerProps) => {
         <IfInSessionMode deny="immersive-ar">
           <ContactShadows 
             position={[0, -2, 0]} 
-            opacity={0.4} 
-            scale={10} 
-            blur={2} 
-            far={4}
+            opacity={0.3} 
+            scale={12} 
+            blur={2.5} 
+            far={5}
           />
           
           <OrbitControls 
@@ -101,7 +110,8 @@ export const Viewer = ({ config }: ViewerProps) => {
             enableZoom={true} 
             enableRotate={true}
             minDistance={3}
-            maxDistance={10}
+            maxDistance={12}
+            makeDefault
           />
         </IfInSessionMode>
         </XR>
@@ -128,42 +138,46 @@ export const Viewer = ({ config }: ViewerProps) => {
       {!selectedProduct && !isInAR && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none 
                       bg-gradient-to-br from-[#667eea] to-[#764ba2]">
-          <div className="text-center text-white">
-            <span className="text-8xl block mb-5 animate-bounce">🪟</span>
-            <h2 className="text-3xl font-bold mb-3">Start Designing</h2>
-            <p className="text-base opacity-90">Select a product from the sidebar to begin</p>
+          <div className="text-center text-white p-8">
+            <div className="relative inline-block mb-8">
+               <span className="text-9xl block animate-pulse opacity-20">🪟</span>
+               <span className="text-7xl absolute inset-0 flex items-center justify-center">✨</span>
+            </div>
+            <h2 className="text-4xl font-black mb-4 uppercase tracking-[0.3em]">Visionary AR</h2>
+            <div className="w-12 h-1 bg-white/30 mx-auto mb-6" />
+            <p className="text-sm font-bold opacity-80 uppercase tracking-widest">Select a product to start your design journey</p>
           </div>
         </div>
       )}
 
       {/* Toolbar */}
       {selectedProduct && !isInAR && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 
-                      bg-white/95 backdrop-blur-md px-4 py-3 rounded-none border-2 border-gray-200
-                      shadow-xl flex items-center gap-2">
-          <button className="p-2.5 rounded-none hover:bg-gray-100 transition-colors" title="Reset View">
-            <MdRefresh className="text-xl text-gray-700" />
-          </button>
-          <button className="p-2.5 rounded-none hover:bg-gray-100 transition-colors" title="Zoom In">
-            <MdZoomIn className="text-xl text-gray-700" />
-          </button>
-          <button className="p-2.5 rounded-none hover:bg-gray-100 transition-colors" title="Zoom Out">
-            <MdZoomOut className="text-xl text-gray-700" />
-          </button>
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 
+                      bg-white/90 backdrop-blur-xl px-2 py-2 rounded-none border border-gray-100
+                      shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex items-center gap-1">
+          <ToolbarButton icon={<MdRefresh />} title="Reset View" />
+          <ToolbarButton icon={<MdZoomIn />} title="Zoom In" />
+          <ToolbarButton icon={<MdZoomOut />} title="Zoom Out" />
+          <div className="w-px h-6 bg-gray-200 mx-2" />
           <button 
             onClick={handleEnterAR}
-            className="px-4 py-2.5 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white 
-                           rounded-none font-semibold text-sm flex items-center gap-2
-                           hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-gray-900 text-white 
+                           rounded-none font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-3
+                           hover:bg-[#667eea] transition-all duration-300 disabled:opacity-50"
             disabled={!isARSupported}
-            title={!isARSupported ? 'AR requires iOS Safari or Android Chrome' : 'View in augmented reality'}
           >
             <MdCameraAlt className="text-lg" />
-            {isARSupported ? 'View in AR' : 'AR Not Available'}
+            {isARSupported ? 'Initiate AR' : 'AR Unavailable'}
           </button>
         </div>
       )}
     </div>
   );
-};
+});
+
+const ToolbarButton = ({ icon, title }: { icon: React.ReactNode; title: string }) => (
+  <button className="p-3 text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all duration-300" title={title}>
+    <span className="text-xl">{icon}</span>
+  </button>
+);
+

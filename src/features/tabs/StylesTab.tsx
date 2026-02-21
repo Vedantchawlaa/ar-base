@@ -1,4 +1,5 @@
 import type { ProductType, CurtainStyle, BlindStyle, TextureType } from '../../types';
+import { MdOpacity, MdTexture, MdPalette } from 'react-icons/md';
 
 interface StylesTabProps {
   selectedProduct: ProductType;
@@ -29,122 +30,133 @@ export const StylesTab = ({
 }: StylesTabProps) => {
   if (!selectedProduct) {
     return (
-      <div className="text-center py-10 text-gray-500 text-sm">
-        Select a product first
+      <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+        <MdPalette className="text-5xl mb-4 opacity-20" />
+        <p className="text-sm font-medium">Select a product to view styles</p>
       </div>
     );
   }
 
+  const currentStyles = selectedProduct === 'curtain' ? CURTAIN_STYLES : BLIND_STYLES;
+  const activeStyle = selectedProduct === 'curtain' ? curtainStyle : blindStyle;
+
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-8">
       {/* Style Selection */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">
-          {selectedProduct === 'curtain' ? 'Curtain Styles' : 'Blind Styles'}
-        </h3>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-1 h-4 bg-[#667eea]" />
+          <h3 className="text-xs font-bold text-gray-900 uppercase tracking-[0.2em]">
+            Material Style
+          </h3>
+        </div>
         
-        <div className="grid grid-cols-2 gap-3">
-          {selectedProduct === 'curtain' ? (
-            CURTAIN_STYLES.map(style => (
-              <div
-                key={style}
-                className={`
-                  flex flex-col items-center gap-2 p-4 border-2 rounded-none cursor-pointer
-                  transition-all duration-200
-                  ${curtainStyle === style
-                    ? 'border-[#667eea] bg-indigo-50'
-                    : 'border-gray-200 bg-white hover:border-[#667eea] hover:bg-indigo-50/30'
-                  }
-                `}
-                onClick={() => onUpdateCurtainStyle(style)}
-              >
+        <div className="grid grid-cols-2 gap-4">
+          {currentStyles.map(style => (
+            <div
+              key={style}
+              className={`
+                group flex flex-col items-center gap-3 p-4 border-2 rounded-none cursor-pointer
+                transition-all duration-300
+                ${activeStyle === style
+                  ? 'border-[#667eea] bg-indigo-50/50 shadow-md'
+                  : 'border-gray-100 bg-white hover:border-gray-300 hover:shadow-lg'
+                }
+              `}
+              onClick={() => selectedProduct === 'curtain' ? onUpdateCurtainStyle(style as CurtainStyle) : onUpdateBlindStyle(style as BlindStyle)}
+            >
+              <div className={`
+                w-full h-20 rounded-none relative overflow-hidden
+                ${activeStyle === style
+                  ? 'ring-2 ring-indigo-200 ring-offset-2'
+                  : ''
+                }
+              `}>
                 <div className={`
-                  w-full h-15 rounded-none
-                  ${curtainStyle === style
-                    ? 'bg-gradient-to-br from-[#667eea] to-[#764ba2]'
-                    : 'bg-gradient-to-br from-gray-200 to-gray-300'
+                  absolute inset-0 bg-gradient-to-br transition-opacity duration-300
+                  ${activeStyle === style
+                    ? 'from-[#667eea] to-[#764ba2] opacity-100'
+                    : 'from-gray-100 to-gray-200 opacity-80 group-hover:opacity-100'
                   }
                 `} />
-                <span className="text-sm font-medium text-gray-700 capitalize">
-                  {style}
-                </span>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className={`text-[10px] font-bold uppercase tracking-widest ${activeStyle === style ? 'text-white' : 'text-gray-400'}`}>
+                    {style}
+                  </span>
+                </div>
               </div>
-            ))
-          ) : (
-            BLIND_STYLES.map(style => (
-              <div
-                key={style}
-                className={`
-                  flex flex-col items-center gap-2 p-4 border-2 rounded-none cursor-pointer
-                  transition-all duration-200
-                  ${blindStyle === style
-                    ? 'border-[#667eea] bg-indigo-50'
-                    : 'border-gray-200 bg-white hover:border-[#667eea] hover:bg-indigo-50/30'
-                  }
-                `}
-                onClick={() => onUpdateBlindStyle(style)}
-              >
-                <div className={`
-                  w-full h-15 rounded-none
-                  ${blindStyle === style
-                    ? 'bg-gradient-to-br from-[#667eea] to-[#764ba2]'
-                    : 'bg-gradient-to-br from-gray-200 to-gray-300'
-                  }
-                `} />
-                <span className="text-sm font-medium text-gray-700 capitalize">
-                  {style}
-                </span>
-              </div>
-            ))
-          )}
+              <span className={`text-xs font-bold uppercase tracking-wider ${activeStyle === style ? 'text-[#667eea]' : 'text-gray-500'}`}>
+                {style}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Opacity Slider (Curtains only) */}
       {selectedProduct === 'curtain' && (
-        <div>
-          <label className="text-sm font-semibold text-gray-600 block mb-2">
-            Opacity
-          </label>
-          <input
-            type="range"
-            min="0.1"
-            max="1"
-            step="0.1"
-            value={opacity}
-            onChange={(e) => onUpdateOpacity(parseFloat(e.target.value))}
-            className="w-full h-1.5 bg-gray-200 rounded-none appearance-none cursor-pointer
-                     [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4.5 
-                     [&::-webkit-slider-thumb]:h-4.5 [&::-webkit-slider-thumb]:rounded-none
-                     [&::-webkit-slider-thumb]:bg-[#667eea] [&::-webkit-slider-thumb]:cursor-pointer
-                     [&::-webkit-slider-thumb]:shadow-md"
-          />
-          <span className="text-xs font-semibold text-[#667eea] float-right mt-2">
-            {Math.round(opacity * 100)}%
-          </span>
+        <div className="bg-gray-50 p-5 border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <MdOpacity className="text-[#667eea] text-lg" />
+              <label className="text-xs font-bold text-gray-900 uppercase tracking-widest">
+                Transparency
+              </label>
+            </div>
+            <span className="text-xs font-bold text-[#667eea] bg-white px-2 py-1 border border-indigo-100">
+              {Math.round(opacity * 100)}%
+            </span>
+          </div>
+          <div className="relative flex items-center h-10">
+            <div className="absolute w-full h-1 bg-gray-200" />
+            <div className="absolute h-1 bg-[#667eea]" style={{ width: `${opacity * 100}%` }} />
+            <input
+              type="range"
+              min="0.1"
+              max="1"
+              step="0.01"
+              value={opacity}
+              onChange={(e) => onUpdateOpacity(parseFloat(e.target.value))}
+              className="w-full absolute opacity-0 cursor-pointer z-10"
+            />
+            <div 
+              className="absolute w-5 h-5 bg-white border-2 border-[#667eea] shadow-lg pointer-events-none transition-transform duration-200"
+              style={{ left: `calc(${opacity * 100}% - 10px)` }}
+            />
+          </div>
+          <div className="flex justify-between mt-2">
+            <span className="text-[10px] text-gray-400 font-bold uppercase">Sheer</span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase">Opaque</span>
+          </div>
         </div>
       )}
 
       {/* Texture Selection */}
       <div>
-        <label className="text-sm font-semibold text-gray-600 block mb-2">
-          Texture
-        </label>
+        <div className="flex items-center gap-2 mb-4">
+          <MdTexture className="text-[#667eea] text-lg" />
+          <h3 className="text-xs font-bold text-gray-900 uppercase tracking-widest">
+            Finish & Texture
+          </h3>
+        </div>
         <div className="grid grid-cols-3 gap-2">
           {TEXTURES.map(t => (
             <button
               key={t}
               className={`
-                py-2.5 px-4 border-2 rounded-none text-sm font-medium
-                transition-all duration-200
+                group relative py-3 px-4 border-2 rounded-none text-[10px] font-bold uppercase tracking-widest
+                transition-all duration-300
                 ${texture === t
-                  ? 'border-[#667eea] bg-[#667eea] text-white'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-[#667eea] hover:bg-indigo-50'
+                  ? 'border-[#667eea] bg-[#667eea] text-white shadow-lg'
+                  : 'border-gray-100 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-700'
                 }
               `}
               onClick={() => onUpdateTexture(t)}
             >
-              {t.charAt(0).toUpperCase() + t.slice(1)}
+              {t}
+              {texture === t && (
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-purple-400 animate-pulse" />
+              )}
             </button>
           ))}
         </div>
@@ -152,3 +164,4 @@ export const StylesTab = ({
     </div>
   );
 };
+
