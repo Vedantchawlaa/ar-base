@@ -23,7 +23,10 @@ export interface ProductConfig {
   opacity: number;
   texture: TextureType;
   showMeasurements: boolean;
+  isOpen: boolean;
+  openAmount: number;
 }
+
 
 export interface TabConfig {
   id: string;

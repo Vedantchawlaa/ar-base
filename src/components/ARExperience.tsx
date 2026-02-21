@@ -14,17 +14,29 @@ interface ARExperienceProps {
 
 export interface ARControlsState {
   isPlaced: boolean;
+  openAmount: number;
   onRotate: () => void;
   onScaleUp: () => void;
   onScaleDown: () => void;
   onReset: () => void;
 }
 
+
 const matrixHelper = new Matrix4();
 const hitTestPosition = new Vector3();
 
 export function ARExperience({ config, onARControlsChange }: ARExperienceProps) {
-  const { selectedProduct, curtainStyle, blindStyle, color, dimensions, opacity, texture, showMeasurements } = config;
+  const { 
+    selectedProduct, 
+    curtainStyle, 
+    blindStyle, 
+    color, 
+    dimensions, 
+    opacity, 
+    texture, 
+    showMeasurements,
+    openAmount 
+  } = config;
   const [isPlaced, setIsPlaced] = useState(false);
   const [position, setPosition] = useState<Vector3>(new Vector3(0, 0, -2));
   const [rotation, setRotation] = useState<Euler>(new Euler(0, 0, 0));
@@ -83,18 +95,20 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
     setRotation(new Euler(0, 0, 0));
   }, []);
 
-  // Notify parent component about AR controls state only when isPlaced changes
+  // Notify parent component about AR controls state
   useEffect(() => {
     if (onARControlsChange) {
       onARControlsChange({
         isPlaced,
+        openAmount,
         onRotate: handleRotate,
         onScaleUp: handleScaleUp,
         onScaleDown: handleScaleDown,
         onReset: handleReset,
       });
     }
-  }, [isPlaced, handleRotate, handleScaleUp, handleScaleDown, handleReset, onARControlsChange]);
+  }, [isPlaced, openAmount, handleRotate, handleScaleUp, handleScaleDown, handleReset, onARControlsChange]);
+
 
   return (
     <>
@@ -108,6 +122,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
             opacity={opacity}
             texture={texture}
             showMeasurements={showMeasurements}
+            openAmount={openAmount}
           />
         )}
         
@@ -118,6 +133,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
             dimensions={dimensions}
             texture={texture}
             showMeasurements={showMeasurements}
+            openAmount={openAmount}
           />
         )}
       </IfInSessionMode>
@@ -155,6 +171,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                   opacity={opacity * 0.7}
                   texture={texture}
                   showMeasurements={false}
+                  openAmount={openAmount}
                 />
               )}
               
@@ -165,6 +182,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                   dimensions={dimensions}
                   texture={texture}
                   showMeasurements={false}
+                  openAmount={openAmount}
                 />
               )}
             </group>
@@ -187,6 +205,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                 opacity={opacity}
                 texture={texture}
                 showMeasurements={showMeasurements}
+                openAmount={openAmount}
               />
             )}
             
@@ -197,6 +216,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                 dimensions={dimensions}
                 texture={texture}
                 showMeasurements={showMeasurements}
+                openAmount={openAmount}
               />
             )}
 
@@ -217,3 +237,4 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
     </>
   );
 }
+

@@ -22,6 +22,7 @@ interface ContentPanelProps {
   onUpdateTexture: (texture: ProductConfig['texture']) => void;
   onToggleMeasurements: () => void;
   onEnterAR: () => void;
+  onUpdateOpenness: (amount: number) => void;
 }
 
 
@@ -39,7 +40,9 @@ export const ContentPanel = ({
   onUpdateTexture,
   onToggleMeasurements,
   onEnterAR,
+  onUpdateOpenness,
 }: ContentPanelProps) => {
+
   const currentTab = TABS.find(t => t.id === activeTab);
 
   return (
@@ -83,7 +86,10 @@ export const ContentPanel = ({
             onUpdateBlindStyle={onUpdateBlindStyle}
             onUpdateOpacity={onUpdateOpacity}
             onUpdateTexture={onUpdateTexture}
+            openAmount={config.openAmount}
+            onUpdateOpenness={onUpdateOpenness}
           />
+
         )}
 
         {activeTab === 'dimensions' && (

@@ -10,7 +10,9 @@ import { MdRefresh, MdZoomIn, MdZoomOut, MdCameraAlt } from 'react-icons/md';
 
 interface ViewerProps {
   config: ProductConfig;
+  onUpdateOpenness: (amount: number) => void;
 }
+
 
 // Create XR store outside component to persist across renders
 const store = createXRStore({
@@ -18,7 +20,8 @@ const store = createXRStore({
   domOverlay: true,
 });
 
-export const Viewer = forwardRef<{ enterAR: () => void }, ViewerProps>(({ config }, ref) => {
+export const Viewer = forwardRef<{ enterAR: () => void }, ViewerProps>(({ config, onUpdateOpenness }, ref) => {
+
   const { selectedProduct } = config;
   const [isARSupported, setIsARSupported] = useState(true);
   const [showARInstructions, setShowARInstructions] = useState(false);
@@ -127,11 +130,14 @@ export const Viewer = forwardRef<{ enterAR: () => void }, ViewerProps>(({ config
         <ARControls
           isPlaced={arControls.isPlaced}
           isInAR={isInAR}
+          openAmount={config.openAmount}
           onRotate={arControls.onRotate}
           onScaleUp={arControls.onScaleUp}
           onScaleDown={arControls.onScaleDown}
           onReset={arControls.onReset}
+          onUpdateOpenness={onUpdateOpenness}
         />
+
       )}
       
       {/* Empty State */}

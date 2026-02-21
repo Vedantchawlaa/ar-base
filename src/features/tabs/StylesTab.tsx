@@ -1,5 +1,5 @@
 import type { ProductType, CurtainStyle, BlindStyle, TextureType } from '../../types';
-import { MdOpacity, MdTexture, MdPalette } from 'react-icons/md';
+import { MdOpacity, MdTexture, MdPalette, MdSwapHoriz } from 'react-icons/md';
 
 interface StylesTabProps {
   selectedProduct: ProductType;
@@ -7,10 +7,12 @@ interface StylesTabProps {
   blindStyle: BlindStyle;
   opacity: number;
   texture: TextureType;
+  openAmount: number;
   onUpdateCurtainStyle: (style: CurtainStyle) => void;
   onUpdateBlindStyle: (style: BlindStyle) => void;
   onUpdateOpacity: (opacity: number) => void;
   onUpdateTexture: (texture: TextureType) => void;
+  onUpdateOpenness: (amount: number) => void;
 }
 
 const CURTAIN_STYLES: CurtainStyle[] = ['sheer', 'blackout', 'velvet', 'linen'];
@@ -23,11 +25,14 @@ export const StylesTab = ({
   blindStyle,
   opacity,
   texture,
+  openAmount,
   onUpdateCurtainStyle,
   onUpdateBlindStyle,
   onUpdateOpacity,
   onUpdateTexture,
+  onUpdateOpenness,
 }: StylesTabProps) => {
+
   if (!selectedProduct) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-gray-400">
@@ -92,6 +97,43 @@ export const StylesTab = ({
           ))}
         </div>
       </div>
+
+      {/* Opening Control */}
+      <div className="bg-gray-50 p-5 border border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <MdSwapHoriz className="text-[#667eea] text-lg" />
+            <label className="text-xs font-bold text-gray-900 uppercase tracking-widest">
+              Folding / Opening
+            </label>
+          </div>
+          <span className="text-xs font-bold text-[#667eea] bg-white px-2 py-1 border border-indigo-100 font-mono">
+            {Math.round(openAmount * 100)}%
+          </span>
+        </div>
+        <div className="relative flex items-center h-10">
+          <div className="absolute w-full h-1 bg-gray-200" />
+          <div className="absolute h-1 bg-[#667eea]" style={{ width: `${openAmount * 100}%` }} />
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={openAmount}
+            onChange={(e) => onUpdateOpenness(parseFloat(e.target.value))}
+            className="w-full absolute opacity-0 cursor-pointer z-10"
+          />
+          <div 
+            className="absolute w-5 h-5 bg-white border-2 border-[#667eea] shadow-lg pointer-events-none transition-transform duration-200"
+            style={{ left: `calc(${openAmount * 100}% - 10px)` }}
+          />
+        </div>
+        <div className="flex justify-between mt-2">
+          <span className="text-[10px] text-gray-400 font-bold uppercase">Open</span>
+          <span className="text-[10px] text-gray-400 font-bold uppercase">Closed</span>
+        </div>
+      </div>
+
 
       {/* Opacity Slider (Curtains only) */}
       {selectedProduct === 'curtain' && (

@@ -22,7 +22,9 @@ export default function ARDashboard() {
     updateOpacity,
     updateTexture,
     toggleMeasurements,
+    updateOpenness,
   } = useProductConfig();
+
 
   const showNotification = useCallback((message: string, type: 'success' | 'info' = 'success') => {
     setNotification({ message, type });
@@ -64,9 +66,16 @@ export default function ARDashboard() {
         onUpdateTexture={updateTexture}
         onToggleMeasurements={toggleMeasurements}
         onEnterAR={handleEnterAR}
+        onUpdateOpenness={updateOpenness}
       />
+
       
-      <Viewer ref={viewerRef} config={config} />
+      <Viewer 
+        ref={viewerRef} 
+        config={config} 
+        onUpdateOpenness={updateOpenness} 
+      />
+
 
       {/* Notifications */}
       {notification && (

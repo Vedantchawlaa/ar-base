@@ -17,6 +17,7 @@ interface BlindModelProps {
   dimensions: Dimensions;
   texture: 'smooth' | 'fabric' | 'woven';
   showMeasurements: boolean;
+  openAmount: number; // 0 to 1 (0 is open, 1 is closed)
 }
 
 export default function BlindModel({ 
@@ -24,8 +25,10 @@ export default function BlindModel({
   color, 
   dimensions, 
   texture,
-  showMeasurements 
+  showMeasurements,
+  openAmount 
 }: BlindModelProps) {
+
   const groupRef = useRef<Group>(null);
   const slatRefs = useRef<(any)[]>([]);
 
@@ -158,8 +161,8 @@ export default function BlindModel({
           
           {/* Roller fabric */}
           <mesh 
-            position={[0, 0, 0]}
-            scale={[scale.width, scale.height, 1]}
+            position={[0, scale.height / 2 - (scale.height * openAmount) / 2, 0]}
+            scale={[scale.width, scale.height * openAmount, 1]}
             geometry={fabricGeometry || undefined}
             castShadow
             receiveShadow
@@ -173,17 +176,17 @@ export default function BlindModel({
           </mesh>
 
           {/* Bottom weighted bar */}
-          <mesh position={[0, -scale.height / 2 - 0.04, 0.02]} castShadow>
+          <mesh position={[0, scale.height / 2 - (scale.height * openAmount) - 0.04, 0.02]} castShadow>
             <boxGeometry args={[scale.width, 0.06, 0.06]} />
             <meshStandardMaterial color="#3a3a3a" metalness={0.8} roughness={0.2} />
           </mesh>
 
           {/* Pull cord */}
-          <mesh position={[scale.width / 2 - 0.1, -scale.height / 2 - 0.3, 0.04]}>
+          <mesh position={[scale.width / 2 - 0.1, scale.height / 2 - (scale.height * openAmount) - 0.3, 0.04]}>
             <cylinderGeometry args={[0.008, 0.008, 0.5, 8]} />
             <meshStandardMaterial color="#e8e8e8" />
           </mesh>
-          <mesh position={[scale.width / 2 - 0.1, -scale.height / 2 - 0.55, 0.04]}>
+          <mesh position={[scale.width / 2 - 0.1, scale.height / 2 - (scale.height * openAmount) - 0.55, 0.04]}>
             <sphereGeometry args={[0.02, 16, 16]} />
             <meshStandardMaterial color="#e8e8e8" />
           </mesh>
@@ -194,14 +197,15 @@ export default function BlindModel({
         <>
           {slats.map((i) => {
             const spacing = scale.height / slats.length;
-            const yPos = scale.height / 2 - i * spacing - spacing / 2;
+            // When opening, slats bunch up at the top
+            const yPos = scale.height / 2 - i * (spacing * openAmount) - (spacing * openAmount) / 2;
             
             return (
               <mesh 
                 key={i} 
                 ref={(el) => (slatRefs.current[i] = el)}
                 position={[0, yPos, 0]}
-                rotation={[Math.PI / 16, 0, 0]}
+                rotation={[Math.PI / 16 * (1 - openAmount * 0.5), 0, 0]}
                 castShadow
                 receiveShadow
               >
@@ -213,17 +217,11 @@ export default function BlindModel({
           
           {/* Lift cords */}
           {[-0.3, 0.3].map((xOffset, idx) => (
-            <mesh key={idx} position={[scale.width * xOffset, 0, 0.07]}>
-              <cylinderGeometry args={[0.006, 0.006, scale.height + 0.5, 8]} />
+            <mesh key={idx} position={[scale.width * xOffset, scale.height / 2 - (scale.height * openAmount) / 2, 0.07]}>
+              <cylinderGeometry args={[0.006, 0.006, scale.height * openAmount + 0.1, 8]} />
               <meshStandardMaterial color="#f5f5f5" />
             </mesh>
           ))}
-
-          {/* Control wand */}
-          <mesh position={[scale.width / 2 + 0.05, -scale.height / 4, 0.08]}>
-            <cylinderGeometry args={[0.01, 0.01, scale.height / 2, 8]} />
-            <meshStandardMaterial color="#e8e8e8" />
-          </mesh>
         </>
       )}
 
@@ -231,13 +229,15 @@ export default function BlindModel({
         <>
           {slats.map((i) => {
             const spacing = scale.width / slats.length;
-            const xPos = -scale.width / 2 + i * spacing + spacing / 2;
+            // Vertical blinds bunch to the left
+            const xPos = -scale.width / 2 + (i * spacing + spacing / 2) * openAmount;
             
             return (
               <mesh 
                 key={i} 
                 ref={(el) => (slatRefs.current[i] = el)}
                 position={[xPos, 0, 0]}
+                scale={[openAmount > 0.1 ? 1 : 0.1, 1, 1]}
                 castShadow
                 receiveShadow
               >
@@ -252,59 +252,33 @@ export default function BlindModel({
             <boxGeometry args={[scale.width, 0.04, 0.06]} />
             <meshStandardMaterial color="#666" metalness={0.8} roughness={0.2} />
           </mesh>
-
-          {/* Chain control */}
-          <mesh position={[-scale.width / 2 + 0.1, scale.height / 2 - 0.3, 0.05]}>
-            <cylinderGeometry args={[0.008, 0.008, 0.5, 8]} />
-            <meshStandardMaterial color="#c0c0c0" metalness={0.9} roughness={0.1} />
-          </mesh>
         </>
       )}
 
       {style === 'roman' && (
         <>
-          {/* Main fabric panel */}
-          <mesh 
-            position={[0, 0, 0]}
-            scale={[scale.width, scale.height, 1]}
-            geometry={fabricGeometry || undefined}
-            castShadow
-            receiveShadow
-          >
-            {fabricGeometry ? (
-              <meshStandardMaterial {...getMaterialProps()} side={2} />
-            ) : (
-              <planeGeometry args={[1, 1, 32, 32]} />
-            )}
-            {!fabricGeometry && <meshStandardMaterial {...getMaterialProps()} side={2} />}
-          </mesh>
-
-          {/* Horizontal folds */}
+          {/* Fabric panel with roman fold simulation */}
           {slats.map((i) => {
-            const spacing = scale.height / (slats.length + 1);
-            const yPos = -scale.height / 2 + i * spacing;
-            
-            return (
+             const segmentHeight = scale.height / slats.length;
+             const currentSegmentHeight = segmentHeight * openAmount;
+             const yPos = scale.height / 2 - i * currentSegmentHeight - currentSegmentHeight / 2;
+
+             return (
               <mesh 
                 key={i}
-                position={[0, yPos, 0.02]}
+                position={[0, yPos, i * 0.01 * (1 - openAmount)]}
+                scale={[scale.width, currentSegmentHeight, 1]}
                 castShadow
+                receiveShadow
               >
-                <boxGeometry args={[scale.width, 0.03, 0.04]} />
-                <meshStandardMaterial color={color} roughness={0.8} />
+                <planeGeometry args={[1, 1]} />
+                <meshStandardMaterial {...getMaterialProps()} side={2} />
               </mesh>
-            );
+             );
           })}
-
-          {/* Lift cords */}
-          {[-0.25, 0, 0.25].map((xOffset, idx) => (
-            <mesh key={idx} position={[scale.width * xOffset, 0, 0.03]}>
-              <cylinderGeometry args={[0.005, 0.005, scale.height, 8]} />
-              <meshStandardMaterial color="#f5f5f5" />
-            </mesh>
-          ))}
         </>
       )}
+
 
       {/* Window Frame */}
       <group position={[0, 0, -0.15]}>

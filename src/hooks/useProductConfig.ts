@@ -12,6 +12,8 @@ export const useProductConfig = () => {
     opacity: 0.4,
     texture: 'fabric',
     showMeasurements: false,
+    isOpen: true,
+    openAmount: 1,
   });
 
   const updateProduct = (product: ProductType) => {
@@ -53,6 +55,14 @@ export const useProductConfig = () => {
     setConfig(prev => ({ ...prev, showMeasurements: !prev.showMeasurements }));
   };
 
+  const updateOpenness = (amount: number) => {
+    setConfig(prev => ({ 
+      ...prev, 
+      openAmount: amount,
+      isOpen: amount > 0 
+    }));
+  };
+
   return {
     config,
     updateProduct,
@@ -64,5 +74,7 @@ export const useProductConfig = () => {
     updateOpacity,
     updateTexture,
     toggleMeasurements,
+    updateOpenness,
   };
 };
+

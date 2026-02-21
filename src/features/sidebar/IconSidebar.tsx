@@ -56,14 +56,6 @@ export const IconSidebar = ({ activeTab, onTabChange }: IconSidebarProps) => {
                 </span>
               </button>
 
-              {/* Tooltip on Hover (for mobile/small screens if labels aren't enough) */}
-              <div className="absolute left-full ml-4 px-3 py-1.5 bg-gray-900 text-white text-xs font-semibold
-                            rounded-none opacity-0 group-hover:opacity-100 pointer-events-none
-                            transition-all duration-300 translate-x-[-10px] group-hover:translate-x-0
-                            whitespace-nowrap z-[300] shadow-xl">
-                {tab.label}
-                <div className="absolute top-1/2 -left-1 -translate-y-1/2 w-2 h-2 bg-gray-900 rotate-45" />
-              </div>
             </div>
           );
         })}
@@ -71,4 +63,5 @@ export const IconSidebar = ({ activeTab, onTabChange }: IconSidebarProps) => {
     </div>
   );
 };
+
 

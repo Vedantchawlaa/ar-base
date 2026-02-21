@@ -18,6 +18,7 @@ interface CurtainModelProps {
   opacity: number;
   texture?: 'smooth' | 'fabric' | 'woven';
   showMeasurements: boolean;
+  openAmount: number; // 0 to 1 (0 is open, 1 is closed)
 }
 
 export default function CurtainModel({ 
@@ -25,8 +26,10 @@ export default function CurtainModel({
   color, 
   dimensions, 
   opacity,
-  showMeasurements 
+  showMeasurements,
+  openAmount 
 }: CurtainModelProps) {
+
   const leftCurtainRef = useRef<Mesh>(null);
   const rightCurtainRef = useRef<Mesh>(null);
 
@@ -110,9 +113,18 @@ export default function CurtainModel({
     }
   };
 
-  const panelWidth = scale.width / 2.2;
+  const curtainWidth = scale.width / 2;
+  const currentWidth = curtainWidth * (0.3 + 0.7 * openAmount); // Bunching effect
+  
+  // Interpolate position between middle (closed) and side (open)
+  const leftX = -scale.width / 2 + currentWidth / 2 + (curtainWidth - currentWidth / 2 - 0.1) * openAmount;
+  const rightX = -leftX;
+
   const panelHeight = scale.height;
+  const panelWidth = scale.width / 2.2;
   const totalHeight = panelHeight + (dimensions.drop / 100);
+
+
 
   return (
     <group position={[0, 0, 0]}>
@@ -133,10 +145,13 @@ export default function CurtainModel({
       </mesh>
 
       {/* Curtain Rings */}
-      {Array.from({ length: 8 }).map((_, i) => {
-        const x = ((i / 7) - 0.5) * scale.width;
+      {Array.from({ length: 12 }).map((_, i) => {
+        // Distribute rings along the current width of each panel
+        const side = i < 6 ? -1 : 1;
+        const localIdx = i % 6;
+        const ringX = side * (scale.width / 2 - (localIdx / 5) * currentWidth);
         return (
-          <mesh key={i} position={[x, totalHeight / 2 + 0.1, 0]} castShadow>
+          <mesh key={i} position={[ringX, totalHeight / 2 + 0.1, 0]} castShadow>
             <torusGeometry args={[0.025, 0.008, 8, 16]} />
             <meshStandardMaterial color="#8b7355" metalness={0.8} roughness={0.2} />
           </mesh>
@@ -146,8 +161,8 @@ export default function CurtainModel({
       {/* Left Curtain Panel */}
       <mesh 
         ref={leftCurtainRef} 
-        position={[-panelWidth / 2 - 0.05, 0, 0]}
-        scale={[panelWidth, totalHeight, 1]}
+        position={[leftX, 0, 0]}
+        scale={[currentWidth, totalHeight, 1]}
         geometry={curtainGeometry}
         castShadow
         receiveShadow
@@ -158,14 +173,15 @@ export default function CurtainModel({
       {/* Right Curtain Panel */}
       <mesh 
         ref={rightCurtainRef} 
-        position={[panelWidth / 2 + 0.05, 0, 0]}
-        scale={[panelWidth, totalHeight, 1]}
+        position={[rightX, 0, 0]}
+        scale={[currentWidth, totalHeight, 1]}
         geometry={curtainGeometry}
         castShadow
         receiveShadow
       >
         <meshStandardMaterial {...getMaterialProps()} />
       </mesh>
+
 
       {/* Tiebacks */}
       <mesh position={[-panelWidth - 0.15, 0, 0.1]} rotation={[0, 0, Math.PI / 4]}>
