@@ -32,8 +32,8 @@ export default function DrapeModel({
   }
 
   const scale = useMemo(() => {
-    const baseWidth = 2.4;
-    const baseHeight = 3.2; 
+    const baseWidth = 3.8; // Match window glass width
+    const baseHeight = 2.8; // Match window glass height
     return {
       width: (dimensions.width / 150) * baseWidth,
       height: (dimensions.height / 200) * baseHeight,
@@ -172,9 +172,9 @@ export default function DrapeModel({
   });
 
   return (
-    <group position={[0, -0.1, 0]}>
+    <group position={[0, 0.4, -2.75]}>
       {/* Decorative Rod */}
-      <mesh position={[0, scale.height / 2 + 0.12, 0.1]} rotation={[0, 0, Math.PI / 2]} castShadow>
+      <mesh position={[0, scale.height / 2 + 0.12, 0.05]} rotation={[0, 0, Math.PI / 2]} castShadow>
         <cylinderGeometry args={[0.025, 0.025, scale.width + 0.5, 32]} />
         {style === 'luxury' || style === 'classic' ? (
            <meshStandardMaterial color="#c9a961" metalness={0.9} roughness={0.2} />
@@ -187,7 +187,7 @@ export default function DrapeModel({
       {[-1, 1].map((side) => (
         <mesh 
           key={side}
-          position={[side * (scale.width + 0.5) / 2, scale.height / 2 + 0.12, 0.1]} 
+          position={[side * (scale.width + 0.5) / 2, scale.height / 2 + 0.12, 0.05]} 
           castShadow
         >
           {style === 'minimal' || style === 'modern' ? (
@@ -208,7 +208,7 @@ export default function DrapeModel({
         <mesh 
           key={panel.id}
           ref={(el) => { if (el) drapeRefs.current[i] = el; }}
-          position={[panel.x, drapeY, 0.1 + panel.z]}
+          position={[panel.x, drapeY, 0.05 + panel.z]}
           scale={[currentWidth, totalHeight, 1]}
           geometry={drapeGeometry}
           castShadow
@@ -217,25 +217,6 @@ export default function DrapeModel({
           <meshPhysicalMaterial {...getMaterialProps()} />
         </mesh>
       ))}
-
-      {/* Window Frame */}
-      <group position={[0, 0, -0.05]}>
-        <mesh>
-          <boxGeometry args={[scale.width + 0.15, scale.height + 0.15, 0.06]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.5} />
-        </mesh>
-        <mesh position={[0, 0, 0.035]}>
-          <planeGeometry args={[scale.width, scale.height]} />
-          <meshPhysicalMaterial 
-            color="#d5e8f7" 
-            transmission={0.85} 
-            transparent 
-            opacity={0.5} 
-            roughness={0.1} 
-            ior={1.5} 
-          />
-        </mesh>
-      </group>
 
       {showMeasurements && (
         <Text 

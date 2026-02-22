@@ -1,6 +1,5 @@
 import type { ProductType, Dimensions, MountType, CurtainStyle, BlindStyle, ShadeStyle, DrapeStyle } from '../../types';
-import { calculatePrice, calculateArea } from '../../utils/priceCalculator';
-import { MdAspectRatio, MdHeight, MdCompareArrows, MdInfoOutline, MdEuroSymbol, MdSettingsInputComposite } from 'react-icons/md';
+import { MdAspectRatio, MdHeight, MdCompareArrows, MdInfoOutline, MdSettingsInputComposite } from 'react-icons/md';
 
 interface DimensionsTabProps {
   selectedProduct: ProductType;
@@ -18,10 +17,6 @@ export const DimensionsTab = ({
   selectedProduct,
   dimensions,
   mountType,
-  curtainStyle,
-  blindStyle,
-  shadeStyle,
-  drapeStyle,
   onUpdateDimensions,
   onUpdateMountType,
 }: DimensionsTabProps) => {
@@ -33,20 +28,6 @@ export const DimensionsTab = ({
       </div>
     );
   }
-
-  const getActiveStyle = () => {
-    switch(selectedProduct) {
-      case 'curtain': return curtainStyle;
-      case 'blind': return blindStyle;
-      case 'shade': return shadeStyle;
-      case 'drape': return drapeStyle;
-      default: return '';
-    }
-  };
-
-  const style = getActiveStyle();
-  const price = calculatePrice(selectedProduct, style as any, dimensions);
-  const area = calculateArea(dimensions);
 
   return (
     <div className="flex flex-col gap-8">
@@ -155,34 +136,6 @@ export const DimensionsTab = ({
         </div>
       </div>
 
-      {/* Summary / Price Box */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-none p-6 mt-4 shadow-2xl relative overflow-hidden">
-        <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-white/5 rounded-full blur-2xl" />
-        
-        <div className="flex justify-between items-center py-2 text-[10px] text-gray-400 border-b border-gray-700 uppercase tracking-widest font-bold">
-          <span className="flex items-center gap-2">
-            <MdAspectRatio /> Total Area
-          </span>
-          <span className="text-gray-200">{area.toFixed(2)} m²</span>
-        </div>
-        
-        <div className="flex justify-between items-center pt-6">
-          <div className="flex flex-col">
-            <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest mb-1">
-              Final Quote
-            </span>
-            <div className="flex items-center gap-1">
-              <MdEuroSymbol className="text-white opacity-50" />
-              <strong className="text-white text-3xl font-black tracking-tighter">
-                {price}
-              </strong>
-            </div>
-          </div>
-          <button className="bg-[#667eea] text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 hover:bg-indigo-400 transition-colors">
-            Order
-          </button>
-        </div>
-      </div>
     </div>
   );
 };

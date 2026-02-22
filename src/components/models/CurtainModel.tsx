@@ -39,8 +39,8 @@ export default function CurtainModel({
   }
 
   const scale = useMemo(() => {
-    const baseWidth = 2.4;
-    const baseHeight = 3;
+    const baseWidth = 3.8; // Match window glass width
+    const baseHeight = 2.8; // Match window glass height
     return {
       width: (dimensions.width / 150) * baseWidth,
       height: (dimensions.height / 200) * baseHeight,
@@ -211,16 +211,16 @@ export default function CurtainModel({
   });
 
   return (
-    <group position={[0, 0, 0]}>
+    <group position={[0, 0.5, -2.65]}>
       {/* Curtain Rod */}
-      <mesh position={[0, scale.height / 2 + 0.08, 0.05]} rotation={[0, 0, Math.PI / 2]} castShadow>
+      <mesh position={[0, scale.height / 2 + 0.08, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
         <cylinderGeometry args={[0.018, 0.018, scale.width + 0.4, 32]} />
         <meshStandardMaterial color="#c8c8c8" metalness={0.75} roughness={0.2} /> 
       </mesh>
 
       {/* Rod End Caps */}
       {[-1, 1].map((side) => (
-        <group key={side} position={[side * (scale.width + 0.4) / 2, scale.height / 2 + 0.08, 0.05]}>
+        <group key={side} position={[side * (scale.width + 0.4) / 2, scale.height / 2 + 0.08, 0]}>
           {/* Bracket */}
           <mesh position={[0, 0, -0.03]} castShadow>
             <boxGeometry args={[0.04, 0.05, 0.04]} />
@@ -241,7 +241,7 @@ export default function CurtainModel({
         return (
           <mesh 
             key={i}
-            position={[xPos, scale.height / 2 + 0.1, 0.05]} 
+            position={[xPos, scale.height / 2 + 0.1, 0]} 
             rotation={[Math.PI / 2, 0, 0]}
           >
             <torusGeometry args={[0.01, 0.003, 8, 12]} />
@@ -255,7 +255,7 @@ export default function CurtainModel({
         <mesh 
           key={panel.id}
           ref={(el) => { if (el) curtainRefs.current[i] = el; }}
-          position={[panel.x, curtainY, 0.05 + panel.z]}
+          position={[panel.x, curtainY, panel.z]}
           scale={[currentWidth, totalHeight, 1]}
           geometry={curtainGeometry}
           castShadow
@@ -264,28 +264,6 @@ export default function CurtainModel({
           <meshPhysicalMaterial {...getMaterialProps()} />
         </mesh>
       ))}
-
-      {/* Window Frame */}
-      <group position={[0, 0, -0.05]}>
-        {/* Frame */}
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[scale.width + 0.15, scale.height + 0.15, 0.06]} />
-          <meshStandardMaterial color="#f8f8f8" roughness={0.5} />
-        </mesh>
-        {/* Glass */}
-        <mesh position={[0, 0, 0.035]}>
-          <planeGeometry args={[scale.width, scale.height]} />
-          <meshPhysicalMaterial 
-            color="#dce8f5" 
-            transmission={0.88} 
-            transparent 
-            opacity={0.5} 
-            roughness={0.08} 
-            ior={1.5}
-            thickness={0.5}
-          />
-        </mesh>
-      </group>
 
       {/* Measurements */}
       {showMeasurements && (

@@ -26,8 +26,8 @@ export default function ShadeModel({
   const groupRef = useRef<Group>(null);
 
   const scale = useMemo(() => {
-    const baseWidth = 2.4;
-    const baseHeight = 3;
+    const baseWidth = 3.8; // Match window glass width
+    const baseHeight = 2.8; // Match window glass height
     return {
       width: (dimensions.width / 150) * baseWidth,
       height: (dimensions.height / 200) * baseHeight,
@@ -65,9 +65,9 @@ export default function ShadeModel({
   };
 
   return (
-    <group ref={groupRef} position={[0, 0, 0]}>
+    <group ref={groupRef} position={[0, 0.5, -2.65]}>
       {/* Headrail */}
-      <mesh position={[0, scale.height / 2 + 0.06, 0.05]} castShadow>
+      <mesh position={[0, scale.height / 2 + 0.06, 0]} castShadow>
         <boxGeometry args={[scale.width + 0.1, 0.08, 0.1]} />
         <meshStandardMaterial color="#f0f0f0" metalness={0.3} roughness={0.4} />
       </mesh>
@@ -75,7 +75,7 @@ export default function ShadeModel({
       {/* Pleated Shade */}
       {style === 'pleated' && (
         <mesh 
-          position={[0, scale.height / 2 - dropHeight / 2, 0.05]}
+          position={[0, scale.height / 2 - dropHeight / 2, 0]}
           scale={[scale.width, dropHeight || 0.01, 1]}
           geometry={pleatedGeometry}
           castShadow
@@ -92,7 +92,7 @@ export default function ShadeModel({
 
       {/* Honeycomb/Cellular Shade - double layer */}
       {style === 'honeycomb' && (
-        <group position={[0, scale.height / 2 - dropHeight / 2, 0.05]}>
+        <group position={[0, scale.height / 2 - dropHeight / 2, 0]}>
           <mesh 
             position={[0, 0, 0.02]}
             scale={[scale.width, dropHeight || 0.01, 1]}
@@ -135,7 +135,7 @@ export default function ShadeModel({
       {style === 'solar' && (
         <group>
           <mesh 
-            position={[0, scale.height / 2 - dropHeight / 2, 0.05]}
+            position={[0, scale.height / 2 - dropHeight / 2, 0]}
             scale={[scale.width, dropHeight || 0.01, 1]}
             castShadow
             receiveShadow
@@ -151,7 +151,7 @@ export default function ShadeModel({
           </mesh>
           {/* Rolled fabric */}
           <mesh 
-             position={[0, scale.height / 2 + 0.06, 0.05]} 
+             position={[0, scale.height / 2 + 0.06, 0]} 
              rotation={[0, 0, Math.PI / 2]}
           >
              <cylinderGeometry args={[0.035 + (1-openAmount)*0.02, 0.035 + (1-openAmount)*0.02, scale.width - 0.02, 24]} />
@@ -175,7 +175,7 @@ export default function ShadeModel({
               return (
                 <mesh 
                   key={i}
-                  position={[0, yPos, 0.05]}
+                  position={[0, yPos, 0]}
                   castShadow
                   receiveShadow
                 >
@@ -189,7 +189,7 @@ export default function ShadeModel({
               );
             })}
             {/* Bottom rail */}
-            <mesh position={[0, scale.height / 2 - dropHeight - 0.02, 0.05]} castShadow>
+            <mesh position={[0, scale.height / 2 - dropHeight - 0.02, 0]} castShadow>
               <boxGeometry args={[scale.width, 0.04, 0.04]} />
               <meshStandardMaterial color={color} roughness={0.9} />
             </mesh>
@@ -198,30 +198,11 @@ export default function ShadeModel({
 
       {/* Bottom Rail for non-bamboo */}
       {style !== 'bamboo' && (
-        <mesh position={[0, scale.height / 2 - dropHeight - 0.02, 0.05]} castShadow>
+        <mesh position={[0, scale.height / 2 - dropHeight - 0.02, 0]} castShadow>
           <boxGeometry args={[scale.width, 0.04, 0.06]} />
           <meshStandardMaterial color="#e0e0e0" roughness={0.3} metalness={0.4} />
         </mesh>
       )}
-
-      {/* Window Frame */}
-      <group position={[0, 0, -0.05]}>
-        <mesh>
-          <boxGeometry args={[scale.width + 0.15, scale.height + 0.15, 0.06]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.5} />
-        </mesh>
-        <mesh position={[0, 0, 0.035]}>
-          <planeGeometry args={[scale.width, scale.height]} />
-          <meshPhysicalMaterial 
-            color="#d5e8f7" 
-            transmission={0.85} 
-            transparent 
-            opacity={0.5} 
-            roughness={0.1} 
-            ior={1.5} 
-          />
-        </mesh>
-      </group>
 
       {showMeasurements && (
         <>

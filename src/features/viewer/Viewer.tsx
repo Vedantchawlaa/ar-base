@@ -1,10 +1,11 @@
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
+import { OrbitControls, Environment as DreiEnvironment, ContactShadows } from '@react-three/drei';
 import { XR, createXRStore, IfInSessionMode } from '@react-three/xr';
 import { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { ARExperience, type ARControlsState } from '../../components/ARExperience';
 import { ARInstructions } from '../../components/ARInstructions';
 import { ARControls } from '../../components/ARControls';
+import { Environment } from './Environment';
 import type { ProductConfig } from '../../types';
 import { MdRefresh, MdZoomIn, MdZoomOut, MdCameraAlt } from 'react-icons/md';
 
@@ -94,8 +95,11 @@ export const Viewer = forwardRef<{ enterAR: () => void }, ViewerProps>(({ config
             shadow-mapSize={[2048, 2048]}
           />
           <spotLight position={[-5, 5, 2]} intensity={0.5} angle={0.3} penumbra={1} />
-          <Environment preset="apartment" />
+          <DreiEnvironment preset="apartment" />
         
+        <IfInSessionMode deny="immersive-ar">
+          <Environment />
+        </IfInSessionMode>
         
         <ARExperience config={config} onARControlsChange={handleARControlsChange} />
         

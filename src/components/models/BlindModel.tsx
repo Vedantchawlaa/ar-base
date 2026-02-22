@@ -34,8 +34,8 @@ export default function BlindModel({
   const slatsRef = useRef<Mesh[]>([]);
 
   const scale = useMemo(() => {
-    const baseWidth = 2.4;
-    const baseHeight = 3;
+    const baseWidth = 3.8; // Match window glass width
+    const baseHeight = 2.8; // Match window glass height
     return {
       width: (dimensions.width / 150) * baseWidth,
       height: (dimensions.height / 200) * baseHeight,
@@ -65,9 +65,9 @@ export default function BlindModel({
   };
 
   return (
-    <group ref={groupRef} position={[0, 0, 0]}>
+    <group ref={groupRef} position={[0, 0.5, -2.65]}>
       {/* Headrail */}
-      <mesh position={[0, scale.height / 2 + 0.06, 0.05]} castShadow>
+      <mesh position={[0, scale.height / 2 + 0.06, 0]} castShadow>
         <boxGeometry args={[scale.width + 0.1, 0.08, 0.1]} />
         <meshStandardMaterial color="#f0f0f0" metalness={0.3} roughness={0.4} />
       </mesh>
@@ -76,7 +76,7 @@ export default function BlindModel({
       {style === 'roller' && (
         <group>
           <mesh 
-            position={[0, scale.height / 2 - (scale.height * openAmount) / 2, 0.06]}
+            position={[0, scale.height / 2 - (scale.height * openAmount) / 2, 0.01]}
             scale={[scale.width - 0.02, scale.height * openAmount || 0.01, 1]}
             castShadow
             receiveShadow
@@ -91,7 +91,7 @@ export default function BlindModel({
           </mesh>
           {/* Rolled fabric */}
           <mesh 
-            position={[0, scale.height / 2 + 0.06, 0.06]} 
+            position={[0, scale.height / 2 + 0.06, 0.01]} 
             rotation={[0, 0, Math.PI / 2]}
           >
             <cylinderGeometry args={[0.03 + (1-openAmount)*0.04, 0.03 + (1-openAmount)*0.04, scale.width - 0.04, 24]} />
@@ -99,7 +99,7 @@ export default function BlindModel({
           </mesh>
           {/* Bottom bar */}
           <mesh 
-            position={[0, scale.height / 2 - (scale.height * openAmount), 0.06]} 
+            position={[0, scale.height / 2 - (scale.height * openAmount), 0.01]} 
             castShadow
           >
             <boxGeometry args={[scale.width - 0.01, 0.04, 0.04]} />
@@ -119,7 +119,7 @@ export default function BlindModel({
                
                if (isLast) {
                  return (
-                   <mesh key="bottom-rail" position={[0, yPos, 0.05]} castShadow>
+                   <mesh key="bottom-rail" position={[0, yPos, 0]} castShadow>
                      <boxGeometry args={[scale.width - 0.02, 0.04, 0.04]} />
                      <meshStandardMaterial color={color} metalness={0.2} roughness={0.5} />
                    </mesh>
@@ -130,7 +130,7 @@ export default function BlindModel({
                  <mesh 
                    key={i} 
                    ref={(el) => { if (el) slatsRef.current[i] = el; }}
-                   position={[0, yPos, 0.05]}
+                   position={[0, yPos, 0]}
                    castShadow
                    receiveShadow
                  >
@@ -145,7 +145,7 @@ export default function BlindModel({
               // Skip center tape if window is narrow
               if (xRatio === 0 && scale.width < 1.5) return null;
               return (
-                <group key={xRatio} position={[xPos, 0, 0.05]}>
+                <group key={xRatio} position={[xPos, 0, 0]}>
                   {/* Front tape */}
                   <mesh position={[0, 0, 0.026]}>
                     <planeGeometry args={[0.025, scale.height]} />
@@ -171,7 +171,7 @@ export default function BlindModel({
                const xPos = -scale.width / 2 + i * slatWidth + slatWidth / 2;
                
                return (
-                 <group key={i} position={[xPos, 0, 0.05]}>
+                 <group key={i} position={[xPos, 0, 0]}>
                    <mesh 
                      ref={(el) => { if (el) slatsRef.current[i] = el; }}
                      castShadow
@@ -222,7 +222,7 @@ export default function BlindModel({
              
              // Calculate position
              let yPos = scale.height / 2 - i * sectionHeight - sectionHeight / 2;
-             let zOffset = 0.05;
+             let zOffset = 0;
              let currentOpacity = 1;
              let scaleY = 1;
              
@@ -230,7 +230,7 @@ export default function BlindModel({
                // Stack behind the last visible section
                const stackIndex = i - (sectionCount - Math.ceil(progress));
                yPos = scale.height / 2 - (sectionCount - progress) * sectionHeight;
-               zOffset = 0.05 - stackIndex * 0.01;
+               zOffset = -stackIndex * 0.01;
                currentOpacity = 0.5; // Visual hint of stack
                scaleY = 0.1; // Highly compressed
              }
@@ -257,32 +257,13 @@ export default function BlindModel({
            })}
            {/* Lift Cords */}
            {[-0.3, 0.3].map(x => (
-             <mesh key={x} position={[scale.width * x, 0, 0.04]}>
+             <mesh key={x} position={[scale.width * x, 0, -0.01]}>
                <cylinderGeometry args={[0.002, 0.002, scale.height, 8]} />
                <meshStandardMaterial color="#ffffff" />
              </mesh>
            ))}
          </group>
       )}
-
-      {/* Window Frame */}
-      <group position={[0, 0, -0.05]}>
-        <mesh>
-          <boxGeometry args={[scale.width + 0.15, scale.height + 0.15, 0.06]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.5} />
-        </mesh>
-        <mesh position={[0, 0, 0.035]}>
-          <planeGeometry args={[scale.width, scale.height]} />
-          <meshPhysicalMaterial 
-            color="#d5e8f7" 
-            transmission={0.85} 
-            transparent 
-            opacity={0.5} 
-            roughness={0.1} 
-            ior={1.5} 
-          />
-        </mesh>
-      </group>
 
       {showMeasurements && (
         <>
