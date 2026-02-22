@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ProductType } from '../../types';
-import { MdWindow, MdStraighten, MdSearch } from 'react-icons/md';
+import { MdWindow, MdStraighten, MdSearch, MdWaves, MdGrid4X4 } from 'react-icons/md';
 
 interface ProductsTabProps {
   selectedProduct: ProductType;
@@ -24,6 +24,18 @@ export const ProductsTab = ({ selectedProduct, onSelectProduct, onEnterAR }: Pro
       name: 'Blinds',
       description: 'Modern window shades',
       icon: MdStraighten,
+    },
+    {
+      id: 'shade' as ProductType,
+      name: 'Shades',
+      description: 'Sleek & functional',
+      icon: MdGrid4X4,
+    },
+    {
+      id: 'drape' as ProductType,
+      name: 'Drapes',
+      description: 'Premium luxury covers',
+      icon: MdWaves,
     },
   ];
 

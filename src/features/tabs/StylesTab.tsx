@@ -1,15 +1,19 @@
-import type { ProductType, CurtainStyle, BlindStyle, TextureType } from '../../types';
+import type { ProductType, CurtainStyle, BlindStyle, ShadeStyle, DrapeStyle, TextureType } from '../../types';
 import { MdOpacity, MdTexture, MdPalette, MdSwapHoriz } from 'react-icons/md';
 
 interface StylesTabProps {
   selectedProduct: ProductType;
   curtainStyle: CurtainStyle;
   blindStyle: BlindStyle;
+  shadeStyle: ShadeStyle;
+  drapeStyle: DrapeStyle;
   opacity: number;
   texture: TextureType;
   openAmount: number;
   onUpdateCurtainStyle: (style: CurtainStyle) => void;
   onUpdateBlindStyle: (style: BlindStyle) => void;
+  onUpdateShadeStyle: (style: ShadeStyle) => void;
+  onUpdateDrapeStyle: (style: DrapeStyle) => void;
   onUpdateOpacity: (opacity: number) => void;
   onUpdateTexture: (texture: TextureType) => void;
   onUpdateOpenness: (amount: number) => void;
@@ -17,17 +21,23 @@ interface StylesTabProps {
 
 const CURTAIN_STYLES: CurtainStyle[] = ['sheer', 'blackout', 'velvet', 'linen'];
 const BLIND_STYLES: BlindStyle[] = ['roller', 'venetian', 'vertical', 'roman'];
+const SHADE_STYLES: ShadeStyle[] = ['honeycomb', 'pleated', 'solar', 'bamboo'];
+const DRAPE_STYLES: DrapeStyle[] = ['classic', 'modern', 'luxury', 'minimal'];
 const TEXTURES: TextureType[] = ['smooth', 'fabric', 'woven'];
 
 export const StylesTab = ({
   selectedProduct,
   curtainStyle,
   blindStyle,
+  shadeStyle,
+  drapeStyle,
   opacity,
   texture,
   openAmount,
   onUpdateCurtainStyle,
   onUpdateBlindStyle,
+  onUpdateShadeStyle,
+  onUpdateDrapeStyle,
   onUpdateOpacity,
   onUpdateTexture,
   onUpdateOpenness,
@@ -42,8 +52,17 @@ export const StylesTab = ({
     );
   }
 
-  const currentStyles = selectedProduct === 'curtain' ? CURTAIN_STYLES : BLIND_STYLES;
-  const activeStyle = selectedProduct === 'curtain' ? curtainStyle : blindStyle;
+  const getActiveState = () => {
+    switch(selectedProduct) {
+      case 'curtain': return { styles: CURTAIN_STYLES, active: curtainStyle, update: onUpdateCurtainStyle };
+      case 'blind': return { styles: BLIND_STYLES, active: blindStyle, update: onUpdateBlindStyle };
+      case 'shade': return { styles: SHADE_STYLES, active: shadeStyle, update: onUpdateShadeStyle };
+      case 'drape': return { styles: DRAPE_STYLES, active: drapeStyle, update: onUpdateDrapeStyle };
+      default: return { styles: [], active: '', update: () => {} };
+    }
+  };
+
+  const { styles: currentStyles, active: activeStyle, update: updateStyle } = getActiveState();
 
   return (
     <div className="flex flex-col gap-8">
@@ -68,7 +87,7 @@ export const StylesTab = ({
                   : 'border-gray-100 bg-white hover:border-gray-300 hover:shadow-lg'
                 }
               `}
-              onClick={() => selectedProduct === 'curtain' ? onUpdateCurtainStyle(style as CurtainStyle) : onUpdateBlindStyle(style as BlindStyle)}
+              onClick={() => (updateStyle as (s: string) => void)(style)}
             >
               <div className={`
                 w-full h-20 rounded-none relative overflow-hidden
@@ -135,8 +154,8 @@ export const StylesTab = ({
       </div>
 
 
-      {/* Opacity Slider (Curtains only) */}
-      {selectedProduct === 'curtain' && (
+      {/* Opacity Slider (Curtains & Drapes) */}
+      {(selectedProduct === 'curtain' || selectedProduct === 'drape') && (
         <div className="bg-gray-50 p-5 border border-gray-100">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">

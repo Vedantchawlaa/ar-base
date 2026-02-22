@@ -16,6 +16,8 @@ export default function ARDashboard() {
     updateProduct,
     updateCurtainStyle,
     updateBlindStyle,
+    updateShadeStyle,
+    updateDrapeStyle,
     updateColor,
     updateDimensions,
     updateMountType,
@@ -41,7 +43,13 @@ export default function ARDashboard() {
 
   const handleUpdateProduct = (product: any) => {
     updateProduct(product);
-    showNotification(`Switched to ${product === 'curtain' ? 'Curtains' : 'Blinds'}`, 'info');
+    const names = {
+      curtain: 'Curtains',
+      blind: 'Blinds',
+      shade: 'Shades',
+      drape: 'Drapes'
+    };
+    showNotification(`Switched to ${names[product as keyof typeof names] || 'Product'}`, 'info');
   };
 
   const handleEnterAR = () => {
@@ -59,6 +67,8 @@ export default function ARDashboard() {
         onUpdateProduct={handleUpdateProduct}
         onUpdateCurtainStyle={updateCurtainStyle}
         onUpdateBlindStyle={updateBlindStyle}
+        onUpdateShadeStyle={updateShadeStyle}
+        onUpdateDrapeStyle={updateDrapeStyle}
         onUpdateColor={updateColor}
         onUpdateDimensions={updateDimensions}
         onUpdateMountType={updateMountType}

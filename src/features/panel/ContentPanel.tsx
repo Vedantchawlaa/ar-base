@@ -15,6 +15,8 @@ interface ContentPanelProps {
   onUpdateProduct: (product: ProductConfig['selectedProduct']) => void;
   onUpdateCurtainStyle: (style: ProductConfig['curtainStyle']) => void;
   onUpdateBlindStyle: (style: ProductConfig['blindStyle']) => void;
+  onUpdateShadeStyle: (style: ProductConfig['shadeStyle']) => void;
+  onUpdateDrapeStyle: (style: ProductConfig['drapeStyle']) => void;
   onUpdateColor: (color: string) => void;
   onUpdateDimensions: (dimensions: Partial<ProductConfig['dimensions']>) => void;
   onUpdateMountType: (mountType: ProductConfig['mountType']) => void;
@@ -33,6 +35,8 @@ export const ContentPanel = ({
   onUpdateProduct,
   onUpdateCurtainStyle,
   onUpdateBlindStyle,
+  onUpdateShadeStyle,
+  onUpdateDrapeStyle,
   onUpdateColor,
   onUpdateDimensions,
   onUpdateMountType,
@@ -80,10 +84,14 @@ export const ContentPanel = ({
             selectedProduct={config.selectedProduct}
             curtainStyle={config.curtainStyle}
             blindStyle={config.blindStyle}
+            shadeStyle={config.shadeStyle}
+            drapeStyle={config.drapeStyle}
             opacity={config.opacity}
             texture={config.texture}
             onUpdateCurtainStyle={onUpdateCurtainStyle}
             onUpdateBlindStyle={onUpdateBlindStyle}
+            onUpdateShadeStyle={onUpdateShadeStyle}
+            onUpdateDrapeStyle={onUpdateDrapeStyle}
             onUpdateOpacity={onUpdateOpacity}
             onUpdateTexture={onUpdateTexture}
             openAmount={config.openAmount}
@@ -99,6 +107,8 @@ export const ContentPanel = ({
             mountType={config.mountType}
             curtainStyle={config.curtainStyle}
             blindStyle={config.blindStyle}
+            shadeStyle={config.shadeStyle}
+            drapeStyle={config.drapeStyle}
             onUpdateDimensions={onUpdateDimensions}
             onUpdateMountType={onUpdateMountType}
           />

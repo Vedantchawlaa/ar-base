@@ -139,22 +139,6 @@ export const Viewer = forwardRef<{ enterAR: () => void }, ViewerProps>(({ config
         />
 
       )}
-      
-      {/* Empty State */}
-      {!selectedProduct && !isInAR && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none 
-                      bg-gradient-to-br from-[#667eea] to-[#764ba2]">
-          <div className="text-center text-white p-8">
-            <div className="relative inline-block mb-8">
-               <span className="text-9xl block animate-pulse opacity-20">🪟</span>
-               <span className="text-7xl absolute inset-0 flex items-center justify-center">✨</span>
-            </div>
-            <h2 className="text-4xl font-black mb-4 uppercase tracking-[0.3em]">Visionary AR</h2>
-            <div className="w-12 h-1 bg-white/30 mx-auto mb-6" />
-            <p className="text-sm font-bold opacity-80 uppercase tracking-widest">Select a product to start your design journey</p>
-          </div>
-        </div>
-      )}
 
       {/* Toolbar */}
       {selectedProduct && !isInAR && (

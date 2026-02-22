@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import type { ProductConfig, ProductType, CurtainStyle, BlindStyle, MountType, TextureType } from '../types';
+import type { ProductConfig, ProductType, CurtainStyle, BlindStyle, ShadeStyle, DrapeStyle, MountType, TextureType } from '../types';
 
 export const useProductConfig = () => {
   const [config, setConfig] = useState<ProductConfig>({
     selectedProduct: null,
     curtainStyle: 'sheer',
     blindStyle: 'roller',
+    shadeStyle: 'honeycomb',
+    drapeStyle: 'classic',
     color: '#ffffff',
     dimensions: { width: 150, height: 200, drop: 0 },
     mountType: 'outside',
@@ -26,6 +28,14 @@ export const useProductConfig = () => {
 
   const updateBlindStyle = (style: BlindStyle) => {
     setConfig(prev => ({ ...prev, blindStyle: style }));
+  };
+
+  const updateShadeStyle = (style: ShadeStyle) => {
+    setConfig(prev => ({ ...prev, shadeStyle: style }));
+  };
+
+  const updateDrapeStyle = (style: DrapeStyle) => {
+    setConfig(prev => ({ ...prev, drapeStyle: style }));
   };
 
   const updateColor = (color: string) => {
@@ -68,6 +78,8 @@ export const useProductConfig = () => {
     updateProduct,
     updateCurtainStyle,
     updateBlindStyle,
+    updateShadeStyle,
+    updateDrapeStyle,
     updateColor,
     updateDimensions,
     updateMountType,

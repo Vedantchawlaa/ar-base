@@ -1,4 +1,4 @@
-import type { ProductType, Dimensions, MountType, CurtainStyle, BlindStyle } from '../../types';
+import type { ProductType, Dimensions, MountType, CurtainStyle, BlindStyle, ShadeStyle, DrapeStyle } from '../../types';
 import { calculatePrice, calculateArea } from '../../utils/priceCalculator';
 import { MdAspectRatio, MdHeight, MdCompareArrows, MdInfoOutline, MdEuroSymbol, MdSettingsInputComposite } from 'react-icons/md';
 
@@ -8,6 +8,8 @@ interface DimensionsTabProps {
   mountType: MountType;
   curtainStyle: CurtainStyle;
   blindStyle: BlindStyle;
+  shadeStyle: ShadeStyle;
+  drapeStyle: DrapeStyle;
   onUpdateDimensions: (dimensions: Partial<Dimensions>) => void;
   onUpdateMountType: (mountType: MountType) => void;
 }
@@ -18,6 +20,8 @@ export const DimensionsTab = ({
   mountType,
   curtainStyle,
   blindStyle,
+  shadeStyle,
+  drapeStyle,
   onUpdateDimensions,
   onUpdateMountType,
 }: DimensionsTabProps) => {
@@ -30,8 +34,18 @@ export const DimensionsTab = ({
     );
   }
 
-  const style = selectedProduct === 'curtain' ? curtainStyle : blindStyle;
-  const price = calculatePrice(selectedProduct, style, dimensions);
+  const getActiveStyle = () => {
+    switch(selectedProduct) {
+      case 'curtain': return curtainStyle;
+      case 'blind': return blindStyle;
+      case 'shade': return shadeStyle;
+      case 'drape': return drapeStyle;
+      default: return '';
+    }
+  };
+
+  const style = getActiveStyle();
+  const price = calculatePrice(selectedProduct, style as any, dimensions);
   const area = calculateArea(dimensions);
 
   return (
@@ -86,8 +100,8 @@ export const DimensionsTab = ({
             />
           </div>
 
-          {/* Drop Input (Curtains only) */}
-          {selectedProduct === 'curtain' && (
+          {/* Drop Input (Curtains & Drapes) */}
+          {(selectedProduct === 'curtain' || selectedProduct === 'drape') && (
             <div className="relative group">
               <div className="absolute left-4 top-1/2 -translate-y-1/2">
                 <MdAspectRatio className="text-gray-400 text-lg group-focus-within:text-[#667eea] transition-colors" />

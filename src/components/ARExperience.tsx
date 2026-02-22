@@ -3,8 +3,10 @@ import { Text } from '@react-three/drei';
 import { IfInSessionMode, useXRHitTest, useXRInputSourceEvent } from '@react-three/xr';
 import { Group, Vector3, Euler, Matrix4 } from 'three';
 import { useFrame } from '@react-three/fiber';
-import CurtainModel from './CurtainModel';
-import BlindModel from './BlindModel';
+import CurtainModel from './models/CurtainModel';
+import BlindModel from './models/BlindModel';
+import ShadeModel from './models/ShadeModel';
+import DrapeModel from './models/DrapeModel';
 import type { ProductConfig } from '../types';
 
 interface ARExperienceProps {
@@ -30,6 +32,8 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
     selectedProduct, 
     curtainStyle, 
     blindStyle, 
+    shadeStyle,
+    drapeStyle,
     color, 
     dimensions, 
     opacity, 
@@ -136,6 +140,29 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
             openAmount={openAmount}
           />
         )}
+
+        {selectedProduct === 'shade' && (
+          <ShadeModel 
+            style={shadeStyle} 
+            color={color}
+            dimensions={dimensions}
+            texture={texture}
+            showMeasurements={showMeasurements}
+            openAmount={openAmount}
+          />
+        )}
+
+        {selectedProduct === 'drape' && (
+          <DrapeModel 
+            style={drapeStyle} 
+            color={color}
+            dimensions={dimensions}
+            opacity={opacity}
+            texture={texture}
+            showMeasurements={showMeasurements}
+            openAmount={openAmount}
+          />
+        )}
       </IfInSessionMode>
 
       {/* AR Mode - simplified experience */}
@@ -185,6 +212,29 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                   openAmount={openAmount}
                 />
               )}
+
+              {selectedProduct === 'shade' && (
+                <ShadeModel 
+                  style={shadeStyle} 
+                  color={color}
+                  dimensions={dimensions}
+                  texture={texture}
+                  showMeasurements={false}
+                  openAmount={openAmount}
+                />
+              )}
+
+              {selectedProduct === 'drape' && (
+                <DrapeModel 
+                  style={drapeStyle} 
+                  color={color}
+                  dimensions={dimensions}
+                  opacity={opacity * 0.7}
+                  texture={texture}
+                  showMeasurements={false}
+                  openAmount={openAmount}
+                />
+              )}
             </group>
           </group>
         )}
@@ -214,6 +264,29 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                 style={blindStyle} 
                 color={color}
                 dimensions={dimensions}
+                texture={texture}
+                showMeasurements={showMeasurements}
+                openAmount={openAmount}
+              />
+            )}
+
+            {selectedProduct === 'shade' && (
+              <ShadeModel 
+                style={shadeStyle} 
+                color={color}
+                dimensions={dimensions}
+                texture={texture}
+                showMeasurements={showMeasurements}
+                openAmount={openAmount}
+              />
+            )}
+
+            {selectedProduct === 'drape' && (
+              <DrapeModel 
+                style={drapeStyle} 
+                color={color}
+                dimensions={dimensions}
+                opacity={opacity}
                 texture={texture}
                 showMeasurements={showMeasurements}
                 openAmount={openAmount}

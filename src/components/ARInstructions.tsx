@@ -35,15 +35,6 @@ export function ARInstructions({ onClose, isVisible }: ARInstructionsProps) {
           </div>
         </div>
       </div>
-
-      {/* Bottom tips */}
-      <div className="absolute bottom-32 left-1/2 -translate-x-1/2 pointer-events-auto animate-in fade-in duration-700 delay-500">
-        <div className="bg-black/80 backdrop-blur-md px-6 py-3 rounded-none shadow-2xl border-b-2 border-[#667eea]">
-          <p className="text-xs text-white font-bold uppercase tracking-[0.2em]">
-            💡 Move closer or further to adjust scale
-          </p>
-        </div>
-      </div>
     </div>
   );
 }
