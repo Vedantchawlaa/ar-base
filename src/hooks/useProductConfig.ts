@@ -8,7 +8,7 @@ export const useProductConfig = () => {
     blindStyle: 'roller',
     shadeStyle: 'honeycomb',
     drapeStyle: 'classic',
-    color: '#ffffff',
+    color: '#000000',
     dimensions: { width: 150, height: 200, drop: 0 },
     mountType: 'outside',
     opacity: 0.4,
@@ -16,6 +16,7 @@ export const useProductConfig = () => {
     showMeasurements: false,
     isOpen: true,
     openAmount: 1,
+    panelCount: 2,
   });
 
   const updateProduct = (product: ProductType) => {
@@ -73,6 +74,10 @@ export const useProductConfig = () => {
     }));
   };
 
+  const updatePanelCount = (count: number) => {
+    setConfig(prev => ({ ...prev, panelCount: count }));
+  };
+
   return {
     config,
     updateProduct,
@@ -87,6 +92,7 @@ export const useProductConfig = () => {
     updateTexture,
     toggleMeasurements,
     updateOpenness,
+    updatePanelCount,
   };
 };
 

@@ -17,6 +17,8 @@ interface StylesTabProps {
   onUpdateOpacity: (opacity: number) => void;
   onUpdateTexture: (texture: TextureType) => void;
   onUpdateOpenness: (amount: number) => void;
+  panelCount: number;
+  onUpdatePanelCount: (count: number) => void;
 }
 
 const CURTAIN_STYLES: CurtainStyle[] = ['sheer', 'blackout', 'velvet', 'linen'];
@@ -41,6 +43,8 @@ export const StylesTab = ({
   onUpdateOpacity,
   onUpdateTexture,
   onUpdateOpenness,
+  panelCount,
+  onUpdatePanelCount,
 }: StylesTabProps) => {
 
   if (!selectedProduct) {
@@ -152,6 +156,45 @@ export const StylesTab = ({
           <span className="text-[10px] text-gray-400 font-bold uppercase">Closed</span>
         </div>
       </div>
+ 
+       {/* Number of Panels (Curtains & Drapes) */}
+       {(selectedProduct === 'curtain' || selectedProduct === 'drape') && (
+         <div className="bg-gray-50 p-5 border border-gray-100">
+           <div className="flex items-center justify-between mb-4">
+             <div className="flex items-center gap-2">
+               <MdSwapHoriz className="text-[#667eea] text-lg" />
+               <label className="text-xs font-bold text-gray-900 uppercase tracking-widest">
+                 Number of Panels
+               </label>
+             </div>
+             <span className="text-xs font-bold text-[#667eea] bg-white px-2 py-1 border border-indigo-100 font-mono">
+               {panelCount}
+             </span>
+           </div>
+           <div className="relative flex items-center h-10">
+             <div className="absolute w-full h-1 bg-gray-200" />
+             <div className="absolute h-1 bg-[#667eea]" style={{ width: `${((panelCount - 1) / 11) * 100}%` }} />
+             <input
+               type="range"
+               min="1"
+               max="12"
+               step="1"
+               value={panelCount}
+               onChange={(e) => onUpdatePanelCount(parseInt(e.target.value))}
+               className="w-full absolute opacity-0 cursor-pointer z-10"
+             />
+             <div 
+               className="absolute w-5 h-5 bg-white border-2 border-[#667eea] shadow-lg pointer-events-none transition-transform duration-200"
+               style={{ left: `calc(${((panelCount - 1) / 11) * 100}% - 10px)` }}
+             />
+           </div>
+           <div className="flex justify-between mt-2">
+             <span className="text-[10px] text-gray-400 font-bold uppercase">1</span>
+             <span className="text-[10px] text-gray-400 font-bold uppercase">12</span>
+           </div>
+         </div>
+       )}
+
 
 
       {/* Opacity Slider (Curtains & Drapes) */}

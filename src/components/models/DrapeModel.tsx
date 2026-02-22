@@ -1,6 +1,5 @@
 import { useRef, useMemo } from 'react';
 import { Mesh, PlaneGeometry, Vector3 } from 'three';
-import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import type { DrapeStyle, Dimensions } from '../../types';
 
@@ -11,7 +10,8 @@ interface DrapeModelProps {
   opacity: number;
   texture?: 'smooth' | 'fabric' | 'woven';
   showMeasurements: boolean;
-  openAmount: number; // 0 open to 1 closed
+  openAmount: number;
+  panelCount?: number;
 }
 
 export default function DrapeModel({ 
@@ -20,11 +20,16 @@ export default function DrapeModel({
   dimensions, 
   opacity,
   showMeasurements,
-  openAmount 
+  openAmount,
+  panelCount = 2,
 }: DrapeModelProps) {
 
-  const leftRef = useRef<Mesh>(null);
-  const rightRef = useRef<Mesh>(null);
+  const drapeRefs = useRef<(Mesh | null)[]>([]);
+
+  // ensure array size
+  if (drapeRefs.current.length !== panelCount) {
+    drapeRefs.current = Array(panelCount).fill(null);
+  }
 
   const scale = useMemo(() => {
     const baseWidth = 2.4;
@@ -36,75 +41,73 @@ export default function DrapeModel({
   }, [dimensions]);
 
   const drapeGeometry = useMemo(() => {
-    // High poly for dramatic folds
-    const geometry = new PlaneGeometry(1, 1, 64, 32);
+    const widthSegments = 70;
+    const heightSegments = 90;
+    const geometry = new PlaneGeometry(1, 1, widthSegments, heightSegments);
     const pos = geometry.getAttribute('position');
     const v = new Vector3();
     
-    let foldFrequency = 10;
+    let foldCount = 8;
     let foldDepth = 0.1;
     let puddleAmount = 0.05;
 
-    // Define styles
     if (style === 'luxury') {
-      foldFrequency = 6;  // Deep, wide folds
-      foldDepth = 0.2;
-      puddleAmount = 0.1; // Lots of fabric puddling on floor
+      foldCount = 6;
+      foldDepth = 0.15;
+      puddleAmount = 0.1;
     } else if (style === 'minimal') {
-      foldFrequency = 12; // Narrower folds
-      foldDepth = 0.05;
-      puddleAmount = 0;   // Clean at the floor
+      foldCount = 12;
+      foldDepth = 0.04;
+      puddleAmount = 0;
     } else if (style === 'modern') {
-      foldFrequency = 8;
+      foldCount = 9;
       foldDepth = 0.08;
-      puddleAmount = 0.02; // Just resting on floor
+      puddleAmount = 0.02;
     } else if (style === 'classic') {
-      foldFrequency = 10;
+      foldCount = 8;
       foldDepth = 0.12;
-      puddleAmount = 0.05; 
+      puddleAmount = 0.06; 
     }
+
+    const gatherIntensity = 1.3 - openAmount * 0.5;
 
     for (let i = 0; i < pos.count; i++) {
         v.fromBufferAttribute(pos, i);
         
-        const normalizedX = v.x + 0.5; 
+        const x = v.x + 0.5; 
+        const y = v.y + 0.5;
         
-        // Folds bunch up when open
-        const foldIntensity = 1 + (1 - openAmount) * 1.5;
+        // Vertical folds
+        const foldPhase = x * Math.PI * foldCount;
+        const foldWave = Math.sin(foldPhase);
         
-        const wave = Math.sin(normalizedX * Math.PI * foldFrequency) * (foldDepth * foldIntensity);
-        const yFalloff = (v.y + 0.5); 
+        // Top is held by rod
+        const topConstraint = y > 0.92 ? Math.pow((1 - y) * 12, 2) : 1;
         
-        // Floor puddling effect (bottom of the drape extends forward and folds)
-        let puddleOffsetZ = 0;
-        let puddleOffsetY = 0;
+        // Euro Pleat (Triple Pinch) effect at the top
+        const pleatWave = Math.pow(Math.abs(Math.sin(foldPhase * 1.5)), 0.5) * 0.35;
+        const topEmphasis = (1 - topConstraint) * pleatWave;
         
-        if (yFalloff < 0.1 && puddleAmount > 0) {
-            const puddlePhase = (0.1 - yFalloff) * 10; // 0 to 1
-            puddleOffsetZ = Math.sin(puddlePhase * Math.PI) * puddleAmount;
-            puddleOffsetY = puddlePhase * puddleAmount * 0.5; // push up slightly
+        // Bottom drapes naturally
+        const bottomWeight = Math.pow(1 - y, 0.7);
+        
+        const depth = (foldWave + topEmphasis) * foldDepth * gatherIntensity * topConstraint * (0.4 + bottomWeight * 0.6);
+        
+        // Floor puddle
+        let puddleZ = 0;
+        if (y < 0.05 && puddleAmount > 0) {
+            const puddlePhase = (0.05 - y) * 20;
+            puddleZ = Math.sin(puddlePhase * Math.PI * 0.5) * puddleAmount;
         }
         
-        const constrainTop = 0.2 + 0.8 * (1 - yFalloff);
-        const finalZ = wave * constrainTop + puddleOffsetZ;
-        const finalY = v.y + puddleOffsetY;
-        
-        pos.setXYZ(i, v.x, finalY, finalZ);
+        pos.setZ(i, depth + puddleZ);
     }
+    
     geometry.computeVertexNormals();
     return geometry;
   }, [style, openAmount]);
 
-  useFrame((state) => {
-    const time = state.clock.getElapsedTime();
-    if (leftRef.current && rightRef.current) {
-      // Drapes are heavy, sway very slowly if at all
-      const sway = Math.sin(time * 0.4) * 0.005;
-      leftRef.current.position.z = sway * openAmount + 0.08;
-      rightRef.current.position.z = -sway * openAmount + 0.08;
-    }
-  });
-
+  // Material properties based on fabric type
   const getMaterialProps = () => {
     const base = {
        color,
@@ -116,114 +119,134 @@ export default function DrapeModel({
     if (style === 'luxury') {
        return { 
            ...base, 
-           roughness: 0.6, 
-           sheen: 1, 
+           roughness: 0.55, 
+           sheen: 1.0, 
            sheenColor: '#ffffff', 
-           sheenRoughness: 0.3,
-           clearcoat: 0.2, // Silk-like shine
-           clearcoatRoughness: 0.5
+           sheenRoughness: 0.25,
+           clearcoat: 0.15,
+           clearcoatRoughness: 0.3
        };
     } else if (style === 'modern' || style === 'minimal') {
        return {
            ...base,
-           roughness: 0.9,
+           roughness: 0.85,
            metalness: 0,
+           sheen: 0.35,
+           sheenRoughness: 0.8,
+           clearcoat: 0.02
        }
     } else {
-       // classic
        return {
            ...base,
-           roughness: 0.8,
-           sheen: 0.4,
-           sheenRoughness: 0.6
+           roughness: 0.75,
+           sheen: 0.6,
+           sheenRoughness: 0.45,
+           clearcoat: 0.05
        }
     }
   };
 
-  const drapeWidth = scale.width / 2;
-  // Drapes are thick, they bunch up significantly
-  const minWidthRatio = style === 'luxury' ? 0.3 : 0.2;
-  const currentWidth = drapeWidth * (minWidthRatio + (1 - minWidthRatio) * openAmount);
+  const fullPanelWidth = scale.width / panelCount;
+  const minWidthRatio = style === 'luxury' ? 0.3 : style === 'minimal' ? 0.18 : 0.22;
+  const currentWidth = fullPanelWidth * (minWidthRatio + (1 - minWidthRatio) * openAmount);
   
-  const leftX = -scale.width / 2 + currentWidth / 2 + (drapeWidth - currentWidth) * openAmount;
-  const rightX = -leftX;
+  const dropOffset = dimensions.drop / 100;
+  const totalHeight = scale.height + dropOffset;
+  const drapeY = -dropOffset / 2;
 
-  const totalHeight = scale.height + (dimensions.drop / 100);
+  const leftCount = Math.ceil(panelCount / 2);
+
+  const panelsData = Array.from({ length: panelCount }).map((_, i) => {
+    const isLeft = i < leftCount;
+    let xPos = 0;
+    const staggerZ = i * 0.005; // Stagger to distinguish overlapping panels
+    const panelGap = 0.003;
+    
+    if (isLeft) {
+      xPos = -scale.width / 2 + (i + 0.5) * currentWidth + (i * panelGap);
+    } else {
+      const j = panelCount - 1 - i;
+      xPos = scale.width / 2 - (j + 0.5) * currentWidth - (j * panelGap);
+    }
+    return { id: i, x: xPos, z: staggerZ, isLeft };
+  });
 
   return (
     <group position={[0, -0.1, 0]}>
-      {/* Decorative Premium Rod */}
-      <mesh position={[0, totalHeight / 2 + 0.15, 0.1]} rotation={[0, 0, Math.PI / 2]} castShadow>
-        <cylinderGeometry args={[0.03, 0.03, scale.width + 0.6, 32]} />
+      {/* Decorative Rod */}
+      <mesh position={[0, scale.height / 2 + 0.12, 0.1]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <cylinderGeometry args={[0.025, 0.025, scale.width + 0.5, 32]} />
         {style === 'luxury' || style === 'classic' ? (
-           <meshPhysicalMaterial color="#d4af37" metalness={1} roughness={0.2} clearcoat={1} />
+           <meshStandardMaterial color="#c9a961" metalness={0.9} roughness={0.2} />
         ) : (
-           <meshStandardMaterial color="#222222" metalness={0.8} roughness={0.4} />
+           <meshStandardMaterial color="#404040" metalness={0.7} roughness={0.3} />
         )}
       </mesh>
 
-      {/* Decorative Finials */}
+      {/* Finials */}
       {[-1, 1].map((side) => (
-        <group key={side} position={[side * (scale.width + 0.6) / 2, totalHeight / 2 + 0.15, 0.1]}>
-          <mesh castShadow rotation={style === 'minimal' || style === 'modern' ? [0, 0, Math.PI/2] : [0, 0, 0]}>
-            {style === 'minimal' || style === 'modern' ? (
-                <cylinderGeometry args={[0.04, 0.04, 0.08, 32]} />
-            ) : (
-                <sphereGeometry args={[0.06, 32, 32]} />
-            )}
-            {style === 'luxury' || style === 'classic' ? (
-               <meshPhysicalMaterial color="#d4af37" metalness={1} roughness={0.2} />
-            ) : (
-               <meshStandardMaterial color="#222222" metalness={0.8} roughness={0.4} />
-            )}
-          </mesh>
-          {(style === 'luxury' || style === 'classic') && (
-              <mesh position={[side * 0.06, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-                 <cylinderGeometry args={[0.01, 0.04, 0.1, 16]} />
-                 <meshPhysicalMaterial color="#d4af37" metalness={1} roughness={0.2} />
-              </mesh>
+        <mesh 
+          key={side}
+          position={[side * (scale.width + 0.5) / 2, scale.height / 2 + 0.12, 0.1]} 
+          castShadow
+        >
+          {style === 'minimal' || style === 'modern' ? (
+            <boxGeometry args={[0.05, 0.05, 0.05]} />
+          ) : (
+            <sphereGeometry args={[0.05, 16, 16]} />
           )}
-        </group>
+          {style === 'luxury' || style === 'classic' ? (
+             <meshStandardMaterial color="#c9a961" metalness={0.9} roughness={0.2} />
+          ) : (
+             <meshStandardMaterial color="#404040" metalness={0.7} roughness={0.3} />
+          )}
+        </mesh>
       ))}
 
-      {/* Left Panel */}
-      <mesh 
-        ref={leftRef} 
-        position={[leftX, 0, 0.1]}
-        scale={[currentWidth, totalHeight, 1]}
-        geometry={drapeGeometry}
-        castShadow
-        receiveShadow
-      >
-        <meshPhysicalMaterial {...getMaterialProps()} />
-      </mesh>
-
-      {/* Right Panel */}
-      <mesh 
-        ref={rightRef} 
-        position={[rightX, 0, 0.1]}
-        scale={[currentWidth, totalHeight, 1]}
-        geometry={drapeGeometry}
-        castShadow
-        receiveShadow
-      >
-        <meshPhysicalMaterial {...getMaterialProps()} />
-      </mesh>
-
-      {/* Frame */}
-      <group position={[0, 0, -0.1]}>
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[scale.width + 0.15, totalHeight + 0.15, 0.05]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.4} />
+      {/* Drapery Panels */}
+      {panelsData.map((panel, i) => (
+        <mesh 
+          key={panel.id}
+          ref={(el) => { if (el) drapeRefs.current[i] = el; }}
+          position={[panel.x, drapeY, 0.1 + panel.z]}
+          scale={[currentWidth, totalHeight, 1]}
+          geometry={drapeGeometry}
+          castShadow
+          receiveShadow
+        >
+          <meshPhysicalMaterial {...getMaterialProps()} />
         </mesh>
-        <mesh position={[0, 0, 0.03]}>
-          <planeGeometry args={[scale.width, totalHeight]} />
-          <meshPhysicalMaterial color="#cce6ff" transmission={0.9} transparent opacity={0.4} roughness={0.1} ior={1.5} />
+      ))}
+
+      {/* Window Frame */}
+      <group position={[0, 0, -0.05]}>
+        <mesh>
+          <boxGeometry args={[scale.width + 0.15, scale.height + 0.15, 0.06]} />
+          <meshStandardMaterial color="#ffffff" roughness={0.5} />
+        </mesh>
+        <mesh position={[0, 0, 0.035]}>
+          <planeGeometry args={[scale.width, scale.height]} />
+          <meshPhysicalMaterial 
+            color="#d5e8f7" 
+            transmission={0.85} 
+            transparent 
+            opacity={0.5} 
+            roughness={0.1} 
+            ior={1.5} 
+          />
         </mesh>
       </group>
 
       {showMeasurements && (
-        <Text position={[0, totalHeight / 2 + 0.4, 0]} fontSize={0.15} color="#ffffff" outlineWidth={0.01} outlineColor="#000000">
+        <Text 
+          position={[0, scale.height / 2 + 0.35, 0]} 
+          fontSize={0.12} 
+          color="#ffffff" 
+          outlineWidth={0.01} 
+          outlineColor="#000000"
+          anchorX="center"
+          anchorY="middle"
+        >
           {Math.round(dimensions.width)} cm x {Math.round(dimensions.height)} cm
         </Text>
       )}

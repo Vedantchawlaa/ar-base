@@ -25,6 +25,7 @@ interface ContentPanelProps {
   onToggleMeasurements: () => void;
   onEnterAR: () => void;
   onUpdateOpenness: (amount: number) => void;
+  onUpdatePanelCount: (count: number) => void;
 }
 
 
@@ -45,6 +46,7 @@ export const ContentPanel = ({
   onToggleMeasurements,
   onEnterAR,
   onUpdateOpenness,
+  onUpdatePanelCount,
 }: ContentPanelProps) => {
 
   const currentTab = TABS.find(t => t.id === activeTab);
@@ -96,6 +98,8 @@ export const ContentPanel = ({
             onUpdateTexture={onUpdateTexture}
             openAmount={config.openAmount}
             onUpdateOpenness={onUpdateOpenness}
+            panelCount={config.panelCount}
+            onUpdatePanelCount={onUpdatePanelCount}
           />
 
         )}

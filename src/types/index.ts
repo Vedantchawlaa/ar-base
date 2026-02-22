@@ -29,6 +29,7 @@ export interface ProductConfig {
   showMeasurements: boolean;
   isOpen: boolean;
   openAmount: number;
+  panelCount: number;
 }
 
 

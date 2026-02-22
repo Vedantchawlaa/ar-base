@@ -25,6 +25,7 @@ export default function ARDashboard() {
     updateTexture,
     toggleMeasurements,
     updateOpenness,
+    updatePanelCount,
   } = useProductConfig();
 
 
@@ -77,6 +78,7 @@ export default function ARDashboard() {
         onToggleMeasurements={toggleMeasurements}
         onEnterAR={handleEnterAR}
         onUpdateOpenness={updateOpenness}
+        onUpdatePanelCount={updatePanelCount}
       />
 
       

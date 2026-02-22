@@ -39,7 +39,8 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
     opacity, 
     texture, 
     showMeasurements,
-    openAmount 
+    openAmount,
+    panelCount 
   } = config;
   const [isPlaced, setIsPlaced] = useState(false);
   const [position, setPosition] = useState<Vector3>(new Vector3(0, 0, -2));
@@ -127,6 +128,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
             texture={texture}
             showMeasurements={showMeasurements}
             openAmount={openAmount}
+            panelCount={panelCount}
           />
         )}
         
@@ -135,6 +137,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
             style={blindStyle} 
             color={color}
             dimensions={dimensions}
+            opacity={opacity}
             texture={texture}
             showMeasurements={showMeasurements}
             openAmount={openAmount}
@@ -146,6 +149,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
             style={shadeStyle} 
             color={color}
             dimensions={dimensions}
+            opacity={opacity}
             texture={texture}
             showMeasurements={showMeasurements}
             openAmount={openAmount}
@@ -161,6 +165,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
             texture={texture}
             showMeasurements={showMeasurements}
             openAmount={openAmount}
+            panelCount={panelCount}
           />
         )}
       </IfInSessionMode>
@@ -199,6 +204,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                   texture={texture}
                   showMeasurements={false}
                   openAmount={openAmount}
+                  panelCount={panelCount}
                 />
               )}
               
@@ -207,6 +213,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                   style={blindStyle} 
                   color={color}
                   dimensions={dimensions}
+                  opacity={opacity * 0.7}
                   texture={texture}
                   showMeasurements={false}
                   openAmount={openAmount}
@@ -218,6 +225,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                   style={shadeStyle} 
                   color={color}
                   dimensions={dimensions}
+                  opacity={opacity * 0.7}
                   texture={texture}
                   showMeasurements={false}
                   openAmount={openAmount}
@@ -233,6 +241,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                   texture={texture}
                   showMeasurements={false}
                   openAmount={openAmount}
+                  panelCount={panelCount}
                 />
               )}
             </group>
@@ -256,6 +265,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                 texture={texture}
                 showMeasurements={showMeasurements}
                 openAmount={openAmount}
+                panelCount={panelCount}
               />
             )}
             
@@ -264,6 +274,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                 style={blindStyle} 
                 color={color}
                 dimensions={dimensions}
+                opacity={opacity}
                 texture={texture}
                 showMeasurements={showMeasurements}
                 openAmount={openAmount}
@@ -275,6 +286,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                 style={shadeStyle} 
                 color={color}
                 dimensions={dimensions}
+                opacity={opacity}
                 texture={texture}
                 showMeasurements={showMeasurements}
                 openAmount={openAmount}
@@ -290,6 +302,7 @@ export function ARExperience({ config, onARControlsChange }: ARExperienceProps) 
                 texture={texture}
                 showMeasurements={showMeasurements}
                 openAmount={openAmount}
+                panelCount={panelCount}
               />
             )}
 
